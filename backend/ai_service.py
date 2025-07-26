@@ -5,6 +5,7 @@ from google import genai
 from google.genai import types
 from .models import Student, Quiz, QuizResponse, PerformanceTrend, Topic, Subject
 from .topic_prediction_service import topic_prediction_service
+from .performance_cache import cached, cache
 
 class NuraAI:
     def __init__(self):
@@ -19,8 +20,9 @@ class NuraAI:
             self.api_available = False
             logging.warning("GEMINI_API_KEY not found, using fallback responses")
     
+    @cached(ttl=600)  # Cache for 10 minutes
     def generate_learner_feedback(self, student_id):
-        """Generate personalized feedback for a learner using AI"""
+        """Generate personalized feedback for a learner using AI with caching"""
         if not self.api_available:
             return self._get_fallback_feedback()
             
@@ -30,30 +32,24 @@ class NuraAI:
             if not learner:
                 return {"error": "Learner not found"}
             
-            # Get recent performance
-            recent_quizzes = Quiz.query.filter_by(student_id=student_id).order_by(Quiz.date_taken.desc()).limit(5).all()
-            performance_trends = PerformanceTrend.query.filter_by(student_id=student_id).all()
+            # Get recent performance with limit to reduce query time
+            recent_quizzes = Quiz.query.filter_by(student_id=student_id).order_by(Quiz.date_taken.desc()).limit(3).all()
+            performance_trends = PerformanceTrend.query.filter_by(student_id=student_id).limit(5).all()
             
-            # Prepare data for AI analysis
+            # Quick check - if no recent activity, return cached response
+            if not recent_quizzes:
+                return self._get_new_learner_feedback()
+            
+            # Prepare simplified data for faster AI processing
             performance_data = self._prepare_performance_data(recent_quizzes, performance_trends)
             
+            # Use shorter, more focused prompt for faster response
             prompt = f"""
-            You are Nura, an AI learning assistant. Analyze the following learner performance data and provide personalized feedback:
+            Brief feedback for learner (Grade {learner.grade_level}):
+            Recent scores: {[q.score for q in recent_quizzes[:3]]}
             
-            Learner Grade Level: {learner.grade_level}
-            Preferred Subjects: {learner.preferred_subjects}
-            
-            Performance Data: {json.dumps(performance_data)}
-            
-            Please provide feedback in JSON format with the following structure:
-            {{
-                "overall_assessment": "Brief overall assessment",
-                "strengths": ["List of strengths"],
-                "areas_for_improvement": ["List of areas needing work"],
-                "study_suggestions": ["Specific study recommendations"],
-                "motivation_message": "Encouraging message",
-                "next_steps": ["Actionable next steps"]
-            }}
+            JSON response:
+            {{"assessment": "one sentence", "recommendations": ["item1", "item2"], "motivation": "one sentence"}}
             """
             
             response = self.client.models.generate_content(
@@ -76,12 +72,17 @@ class NuraAI:
     def _get_fallback_feedback(self):
         """Provide fallback feedback when AI is not available"""
         return {
-            "overall_assessment": "Great to see you're actively learning! Keep taking quizzes to track your progress.",
-            "strengths": ["Consistent learning effort", "Active participation in quizzes"],
-            "areas_for_improvement": ["Continue practicing regularly", "Review challenging topics"],
-            "study_suggestions": ["Take quizzes in different subjects", "Focus on areas where you scored lower"],
-            "motivation_message": "Every quiz you take helps you learn and grow. Keep up the excellent work!",
-            "next_steps": ["Try a quiz in a new topic", "Review your recent results"]
+            "assessment": "Great to see you're actively learning! Keep taking quizzes to track your progress.",
+            "recommendations": ["Take quizzes in different subjects", "Focus on areas where you scored lower"],
+            "motivation": "Every quiz you take helps you learn and grow. Keep up the excellent work!"
+        }
+    
+    def _get_new_learner_feedback(self):
+        """Feedback for new learners with no quiz history"""
+        return {
+            "assessment": "Welcome! Start your learning journey by taking your first quiz.",
+            "recommendations": ["Choose a subject you're interested in", "Start with easier topics to build confidence"],
+            "motivation": "Every expert was once a beginner. You've got this!"
         }
     
     def generate_quiz_feedback(self, student_id, quiz_results):

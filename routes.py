@@ -4,8 +4,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db
 from backend.models import User, Student, Teacher, Admin, Subject, Topic, Quiz, QuizResponse, PerformanceTrend, QuestionSet, Question, AdaptiveQuizSession
 from backend.ai_service import NuraAI
+from backend.fast_ai_service import fast_ai
 from backend.unified_quiz_engine import UnifiedQuizEngine
 from backend.database_optimizations import DatabaseOptimizer
+from backend.performance_cache import cache
 from backend.topic_prediction_service import topic_prediction_service
 import json
 import uuid
@@ -130,11 +132,15 @@ def learner_dashboard():
     
     learner = current_user.student_profile
     
-    # Get performance data using optimized queries
-    performance_data = DatabaseOptimizer.get_student_performance_optimized(learner.student_id)
+    # Get performance data using optimized queries with caching
+    cache_key = f"dashboard_data_{learner.student_id}"
+    performance_data = cache.get(cache_key)
+    if not performance_data:
+        performance_data = DatabaseOptimizer.get_learner_dashboard_data(learner.student_id)
+        cache.set(cache_key, performance_data, ttl=300)  # 5 minute cache
     
-    # Get AI feedback
-    ai_feedback = nura_ai.generate_learner_feedback(learner.student_id)
+    # Get AI feedback using fast service for better performance
+    ai_feedback = fast_ai.generate_learner_feedback(learner.student_id)
     
     # Get available subjects using optimized query
     subjects_data = DatabaseOptimizer.get_available_subjects_cached()
