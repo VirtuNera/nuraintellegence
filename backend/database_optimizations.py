@@ -112,10 +112,49 @@ class DatabaseOptimizer:
          .group_by(Subject.name)\
          .order_by(desc('avg_score')).all()
         
+        # Convert to format expected by templates
+        recent_quizzes_formatted = [
+            {
+                'topic': q.topic_name,
+                'score': q.score,
+                'date': q.date_taken.strftime('%Y-%m-%d')
+            }
+            for q in recent_quizzes
+        ]
+        
+        # Convert subject performance to expected format
+        subject_proficiency = {}
+        for sp in subject_performance:
+            subject_proficiency[sp.name] = round(sp.avg_score, 2)
+        
+        # Convert trends to expected format
+        trends_formatted = [
+            {
+                'topic': t.topic.name,
+                'score': t.proficiency_score,
+                'data': t.trend_graph_data
+            }
+            for t in performance_trends
+        ]
+        
+        # Calculate completed topics (topics with scores >= 70)
+        completed_topics = 0
+        topic_scores = {}
+        for q in recent_quizzes:
+            if q.topic_name not in topic_scores:
+                topic_scores[q.topic_name] = []
+            topic_scores[q.topic_name].append(q.score)
+        
+        for topic, scores in topic_scores.items():
+            avg_score = sum(scores) / len(scores)
+            if avg_score >= 70:
+                completed_topics += 1
+        
         return {
-            'recent_quizzes': recent_quizzes,
-            'performance_trends': performance_trends,
-            'subject_performance': subject_performance
+            'recent_quizzes': recent_quizzes_formatted,
+            'subject_proficiency': subject_proficiency,
+            'trends': trends_formatted,
+            'completed_topics': completed_topics
         }
     
     @staticmethod
