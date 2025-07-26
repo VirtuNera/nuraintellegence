@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}Topic Predictions - Nura AI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-4 text-center mb-4">
+                <i class="fas fa-brain text-primary"></i> AI Topic Predictions
+            </h1>
+            <p class="lead text-center mb-5">
+                Based on your quiz performance, our AI recommends the following topics for your next learning session.
+            </p>
+        </div>
+    </div>
+
+    {% if predictions and predictions.success %}
+    <div class="row mb-4">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-target"></i> AI Recommendation</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h4><i class="fas fa-lightbulb"></i> Recommended Topic: 
+                            <span class="badge badge-primary">{{ predictions.prediction.recommended_topic }}</span>
+                        </h4>
+                        <p class="mb-0">
+                            <strong>Confidence:</strong> {{ "%.1f"|format(predictions.prediction.confidence * 100) }}%
+                        </p>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h5>Explanation:</h5>
+                        <p>{{ predictions.prediction.explanation }}</p>
+                    </div>
+
+                    {% if predictions.ai_insights %}
+                    <div class="mt-4">
+                        <h5><i class="fas fa-robot"></i> AI Insights:</h5>
+                        <div class="alert alert-light">
+                            <p><strong>Learning Strategy:</strong> {{ predictions.ai_insights.learning_strategy }}</p>
+                            <p><strong>Motivation:</strong> {{ predictions.ai_insights.motivation_message }}</p>
+                            
+                            {% if predictions.ai_insights.study_techniques %}
+                            <h6>Study Techniques:</h6>
+                            <ul>
+                                {% for technique in predictions.ai_insights.study_techniques %}
+                                <li>{{ technique }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <h5>Topic Probabilities:</h5>
+                        {% for topic, probability in predictions.prediction.probabilities.items() %}
+                        <div class="mb-2">
+                            <span class="font-weight-bold">{{ topic }}:</span>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {{ (probability * 100)|round(1) }}%"
+                                     aria-valuenow="{{ (probability * 100)|round(1) }}" 
+                                     aria-valuemin="0" aria-valuemax="100">
+                                    {{ "%.1f"|format(probability * 100) }}%
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Topics Section -->
+    {% if predictions.related_topics %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3><i class="fas fa-list"></i> Available Topics for Practice</h3>
+            <div class="row">
+                {% for topic in predictions.related_topics %}
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ topic.topic_name }}</h5>
+                            <p class="card-text">
+                                <small class="text-muted">{{ topic.subject_name }}</small><br>
+                                <span class="badge bg-info">{{ topic.difficulty_level }}</span>
+                                <span class="badge bg-secondary">{{ topic.question_sets }} sets</span>
+                            </p>
+                            <a href="{{ url_for('start_quiz', topic_id=topic.topic_id) }}" class="btn btn-primary btn-sm">
+                                Start Quiz
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Study Plan Section -->
+    {% if predictions.study_plan %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3><i class="fas fa-calendar-alt"></i> Personalized Study Plan</h3>
+            {% for plan in predictions.study_plan %}
+            <div class="card mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">
+                        <span class="badge bg-{% if plan.priority == 'High' %}danger{% elif plan.priority == 'Medium' %}warning{% else %}secondary{% endif %} me-2">
+                            {{ plan.priority }} Priority
+                        </span>
+                        {{ plan.action }}
+                    </h5>
+
+                    <p class="card-text">{{ plan.description }}</p>
+                    {% if plan.topic_id %}
+                    <a href="{{ url_for('start_quiz', topic_id=plan.topic_id) }}" class="btn btn-success btn-sm">
+                        <i class="fas fa-play me-1"></i>
+                        Start Quiz
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% endif %}
+
+    <!-- Performance Analysis Section -->
+    {% if analysis and analysis.success %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3><i class="fas fa-chart-bar"></i> Performance Analysis</h3>
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Overall Performance</h5>
+                            <p><strong>Total Questions:</strong> {{ analysis.total_questions }}</p>
+                            <p><strong>Overall Accuracy:</strong> {{ analysis.overall_accuracy }}%</p>
+                            <p><strong>Performance Level:</strong> 
+                                <span class="badge bg-{% if analysis.performance_level == 'Excellent' %}success{% elif analysis.performance_level == 'Good' %}primary{% elif analysis.performance_level == 'Satisfactory' %}info{% elif analysis.performance_level == 'Needs Improvement' %}warning{% else %}danger{% endif %}">
+                                    {{ analysis.performance_level }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Topic Breakdown</h5>
+                            {% for topic, data in analysis.topic_breakdown.items() %}
+                            <div class="mb-2">
+                                <strong>{{ topic.title() }}:</strong> {{ data.accuracy }}% ({{ data.correct }}/{{ data.questions }})
+                                <div class="progress">
+                                    <div class="progress-bar 
+                                        {% if data.accuracy >= 80 %}bg-success{% elif data.accuracy >= 60 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                         role="progressbar" style="width: {{ data.accuracy }}%">
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h5>Recommendations</h5>
+                        <ul>
+                            {% for rec in analysis.recommendations %}
+                            <li>{{ rec }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not predictions or not predictions.success %}
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+                    <h4>No Predictions Available</h4>
+                    <p class="text-muted">
+                        {% if predictions and predictions.message %}
+                        {{ predictions.message }}
+                        {% else %}
+                        Complete some quizzes to get personalized topic recommendations from our AI system.
+                        {% endif %}
+                    </p>
+                    <a href="{{ url_for('learner_dashboard') }}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('learner_dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Add any JavaScript for interactive features if needed
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+    
+    // Add click handlers for topic cards
+    $('.card').hover(function() {
+        $(this).addClass('shadow-lg');
+    }, function() {
+        $(this).removeClass('shadow-lg');
+    });
+});
+</script>
+{% endblock %}

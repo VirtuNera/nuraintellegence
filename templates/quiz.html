@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz: {{ topic.name }} - Nura AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Quiz Header -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h4 class="mb-0">
+                                <i class="fas fa-quiz me-2"></i>
+                                {{ quiz.topic_name }}
+                            </h4>
+                            <small>Difficulty: {{ quiz.difficulty_level.title() }}</small>
+                        </div>
+                        <div class="col-auto">
+                            <div class="quiz-timer">
+                                <i class="fas fa-clock me-2"></i>
+                                <span id="timer">{{ quiz.time_limit }}:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-info">{{ quiz.questions|length }} Questions</span>
+                            <span class="badge bg-success">{{ quiz.total_marks }} Points</span>
+                        </div>
+                        <div class="quiz-progress">
+                            <small class="text-muted">Question <span id="current-question">1</span> of {{ quiz.questions|length }}</small>
+                            <div class="progress mt-1" style="width: 200px;">
+                                <div class="progress-bar" role="progressbar" style="width: 0%" id="progress-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quiz Form -->
+            <form id="quizForm" method="POST" action="{{ url_for('submit_quiz') }}">
+                {{ csrf_token() if csrf_token else '' }}
+                <div id="quiz-container">
+                    {% for question in quiz.questions %}
+                    {% set question_num = loop.index %}
+                    <div class="question-card" data-question="{{ question_num }}" 
+                         style="display: {% if loop.first %}block{% else %}none{% endif %};">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    Question {{ question_num }}
+                                    <span class="badge bg-secondary float-end">{{ question.marks_worth }} point{{ 's' if question.marks_worth != 1 else '' }}</span>
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="question-text mb-4">{{ question.description }}</p>
+                                
+                                <div class="options-container">
+                                    {% if question.options and question.options|length > 0 %}
+                                        {% for option in question.options %}
+                                        {% set option_letter = ['A', 'B', 'C', 'D'][loop.index0] %}
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="radio" 
+                                                   name="question_{{ question.question_id }}" 
+                                                   id="q{{ question_num }}_{{ loop.index }}" 
+                                                   value="{{ option_letter }}" required>
+                                            <label class="form-check-label" for="q{{ question_num }}_{{ loop.index }}">
+                                                {% if option.startswith(option_letter + ')') %}
+                                                    {{ option }}
+                                                {% else %}
+                                                    <strong>{{ option_letter }})</strong> {{ option }}
+                                                {% endif %}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            No options available for this question. Please contact support.
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Navigation Buttons -->
+                <div class="d-flex justify-content-between mb-4">
+                    <button type="button" class="btn btn-outline-secondary" id="prev-btn" disabled>
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Previous
+                    </button>
+                    <div class="quiz-navigation">
+                        {% for i in range(1, quiz.questions|length + 1) %}
+                        <button type="button" class="btn btn-outline-primary btn-sm question-nav" 
+                                data-question="{{ i }}">{{ i }}</button>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="btn btn-primary" id="next-btn">
+                        Next
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+                
+                <!-- Submit Button -->
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success btn-lg" id="submit-btn" style="display: none;">
+                        <i class="fas fa-check me-2"></i>
+                        Submit Quiz
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Quiz Sidebar -->
+        <div class="col-lg-4">
+            <div class="card sticky-top">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Quiz Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="quiz-info mb-4">
+                        <h6>Topic: {{ quiz.topic_name }}</h6>
+                        <p class="text-muted">Difficulty: {{ quiz.difficulty_level.title() }}</p>
+                        <p class="text-muted">Pass Mark: {{ quiz.success_threshold }}%</p>
+                    </div>
+                    
+                    <div class="quiz-stats">
+                        <h6>Progress</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Answered:</span>
+                            <span id="answered-count">0</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Remaining:</span>
+                            <span id="remaining-count">{{ quiz.questions|length }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Time Left:</span>
+                            <span id="time-left">{{ quiz.time_limit }}:00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6>Tips</h6>
+                        <ul class="list-unstyled small text-muted">
+                            <li><i class="fas fa-lightbulb me-2"></i>Read each question carefully</li>
+                            <li><i class="fas fa-clock me-2"></i>Manage your time wisely</li>
+                            <li><i class="fas fa-check me-2"></i>Review your answers before submitting</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="submitModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Submit Quiz</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to submit your quiz?</p>
+                <p class="text-muted">You have answered <span id="modal-answered">0</span> out of {{ quiz.questions|length }} questions.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continue Quiz</button>
+                <button type="button" class="btn btn-success" id="confirm-submit">
+                    <i class="fas fa-check me-2"></i>
+                    Submit Quiz
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/quiz.js') }}"></script>
+<script>
+// Initialize quiz
+document.addEventListener('DOMContentLoaded', function() {
+    const quiz = new Quiz({
+        totalQuestions: {{ quiz.questions|length }},
+        timeLimit: {{ quiz.time_limit }},
+        questions: {{ quiz.questions|tojson }}
+    });
+    
+    quiz.init();
+});
+</script>
+{% endblock %}

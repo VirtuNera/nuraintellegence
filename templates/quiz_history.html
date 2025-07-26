@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz History - Nura AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h1 class="display-4">Quiz History</h1>
+                <p class="lead text-muted">Review your past quiz attempts and performance</p>
+            </div>
+        </div>
+    </div>
+
+    {% if quizzes %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>
+                        Your Quiz History ({{ quizzes|length }} quizzes)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Subject</th>
+                                    <th>Topic</th>
+                                    <th>Difficulty</th>
+                                    <th>Score</th>
+                                    <th>Time Taken</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for quiz in quizzes %}
+                                <tr>
+                                    <td>{{ quiz.date_taken.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>{{ quiz.topic.subject.name }}</td>
+                                    <td>{{ quiz.topic.name }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if quiz.question_set.difficulty_level == 'Very Easy' else 'info' if quiz.question_set.difficulty_level == 'Easy' else 'warning' if quiz.question_set.difficulty_level == 'Medium' else 'danger' if quiz.question_set.difficulty_level == 'Hard' else 'dark' }}">
+                                            {{ quiz.question_set.difficulty_level }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <span class="me-2">{{ quiz.score }}/{{ quiz.total_marks }}</span>
+                                            <span class="badge bg-{{ 'success' if (quiz.score/quiz.total_marks)*100 >= 80 else 'warning' if (quiz.score/quiz.total_marks)*100 >= 60 else 'danger' }}">
+                                                {{ "%.1f"|format((quiz.score/quiz.total_marks)*100) }}%
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if quiz.time_taken %}
+                                        {{ quiz.time_taken // 60 }}m {{ quiz.time_taken % 60 }}s
+                                        {% else %}
+                                        N/A
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm btn-outline-info" 
+                                                    onclick="showQuizDetails('{{ quiz.quiz_id }}')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <a href="{{ url_for('start_quiz', topic_id=quiz.topic_id, difficulty=quiz.question_set.difficulty_level) }}" 
+                                               class="btn btn-sm btn-outline-success">
+                                                <i class="fas fa-redo"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Summary -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                    <h5>Average Score</h5>
+                    <h3 class="text-primary">{{ "%.1f"|format(quizzes|sum(attribute='score')/quizzes|sum(attribute='total_marks')*100) }}%</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-trophy fa-3x text-success mb-3"></i>
+                    <h5>Best Score</h5>
+                    <h3 class="text-success">{{ "%.1f"|format(quizzes|max(attribute='score')/quizzes|selectattr('score', 'equalto', quizzes|max(attribute='score'))|first|attr('total_marks')*100) }}%</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+                    <h5>Avg. Time</h5>
+                    <h3 class="text-warning">{{ "%.1f"|format(quizzes|selectattr('time_taken', 'defined')|sum(attribute='time_taken')/quizzes|selectattr('time_taken', 'defined')|list|length/60) }}m</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-calendar fa-3x text-info mb-3"></i>
+                    <h5>Total Quizzes</h5>
+                    <h3 class="text-info">{{ quizzes|length }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                    <h4>No Quiz History</h4>
+                    <p class="text-muted">You haven't taken any quizzes yet. Start your learning journey!</p>
+                    <a href="{{ url_for('subject_selection') }}" class="btn btn-primary">
+                        <i class="fas fa-play me-2"></i>
+                        Start Your First Quiz
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('learner_dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Quiz Details Modal -->
+<div class="modal fade" id="quizDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Quiz Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="quizDetailsContent">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showQuizDetails(quizId) {
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('quizDetailsModal'));
+    modal.show();
+    
+    // Load quiz details via AJAX
+    fetch(`/api/quiz_details/${quizId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let content = `
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Subject:</strong> ${data.quiz.subject}<br>
+                            <strong>Topic:</strong> ${data.quiz.topic}<br>
+                            <strong>Difficulty:</strong> <span class="badge bg-primary">${data.quiz.difficulty}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Score:</strong> ${data.quiz.score}/${data.quiz.total_marks} (${data.quiz.percentage}%)<br>
+                            <strong>Date:</strong> ${data.quiz.date}<br>
+                            <strong>Time Taken:</strong> ${data.quiz.time_taken}
+                        </div>
+                    </div>
+                    <h6>Question-wise Performance:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Question</th>
+                                    <th>Your Answer</th>
+                                    <th>Correct Answer</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                data.responses.forEach((response, index) => {
+                    content += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${response.selected_option || 'Not answered'}</td>
+                            <td>${response.correct_option}</td>
+                            <td>
+                                <span class="badge bg-${response.is_correct ? 'success' : 'danger'}">
+                                    ${response.is_correct ? 'Correct' : 'Incorrect'}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                content += '</tbody></table></div>';
+                document.getElementById('quizDetailsContent').innerHTML = content;
+            } else {
+                document.getElementById('quizDetailsContent').innerHTML = 
+                    '<div class="alert alert-danger">Failed to load quiz details</div>';
+            }
+        })
+        .catch(error => {
+            document.getElementById('quizDetailsContent').innerHTML = 
+                '<div class="alert alert-danger">Error loading quiz details</div>';
+        });
+}
+</script>
+{% endblock %}

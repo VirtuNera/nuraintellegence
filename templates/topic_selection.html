@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Topic Selection - {{ subject.name }} - Nura AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h1 class="display-4">{{ subject.name }} Topics</h1>
+                <p class="lead text-muted">Choose a topic to practice</p>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb justify-content-center">
+                        <li class="breadcrumb-item"><a href="{{ url_for('learner_dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('subject_selection') }}">Subjects</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ subject.name }}</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for topic in topics %}
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm topic-card">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-bookmark fa-2x text-primary me-3"></i>
+                        <div>
+                            <h5 class="card-title mb-1">{{ topic.name }}</h5>
+                            <small class="text-muted">{{ topic.difficulty_level }}</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Section -->
+                    {% if topic_progress and topic_progress.get(topic.topic_id) %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small text-muted">Progress</span>
+                            <span class="badge bg-{{ 'success' if topic_progress[topic.topic_id].overall >= 80 else 'warning' if topic_progress[topic.topic_id].overall >= 60 else 'danger' }}">
+                                {{ topic_progress[topic.topic_id].overall }}%
+                            </span>
+                        </div>
+                        <div class="progress mb-2">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: {{ topic_progress[topic.topic_id].overall }}%">
+                            </div>
+                        </div>
+                        
+                        <!-- Level-wise progress -->
+                        <div class="row g-1 mb-3">
+                            {% for level in ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'] %}
+                            {% set level_progress = topic_progress[topic.topic_id].levels.get(level, 0) %}
+                            <div class="col">
+                                <div class="text-center">
+                                    <div class="progress-circle-small mb-1" style="--progress: {{ level_progress }}%">
+                                        <span class="progress-text">{{ level_progress }}%</span>
+                                    </div>
+                                    <small class="text-muted d-block">{{ level }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Available Question Sets -->
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-question-circle me-1"></i>
+                            {{ topic.question_sets|length }} question sets available
+                        </small>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('level_selection', topic_id=topic.topic_id) }}" 
+                           class="btn btn-primary">
+                            <i class="fas fa-play me-2"></i>
+                            Start Quiz
+                        </a>
+                        
+                        {% if topic_progress and topic_progress.get(topic.topic_id) %}
+                        <button class="btn btn-outline-info btn-sm" onclick="alert('Statistics feature coming soon!')">
+                            <i class="fas fa-chart-line me-1"></i>
+                            View Statistics
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if not topics %}
+    <div class="row">
+        <div class="col-12 text-center">
+            <div class="card">
+                <div class="card-body py-5">
+                    <i class="fas fa-exclamation-triangle fa-3x text-muted mb-3"></i>
+                    <h4>No Topics Available</h4>
+                    <p class="text-muted">There are no topics available for {{ subject.name }} at the moment.</p>
+                    <a href="{{ url_for('subject_selection') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Back to Subjects
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('subject_selection') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>
+                Back to Subjects
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.progress-circle-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: conic-gradient(#007bff 0deg, #007bff calc(var(--progress) * 3.6deg), #e9ecef calc(var(--progress) * 3.6deg));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+.progress-text {
+    background: white;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.topic-card {
+    transition: transform 0.3s ease;
+}
+
+.topic-card:hover {
+    transform: translateY(-5px);
+}
+</style>
+{% endblock %}

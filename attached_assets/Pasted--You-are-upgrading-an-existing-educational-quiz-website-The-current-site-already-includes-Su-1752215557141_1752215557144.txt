@@ -1,0 +1,82 @@
+
+You are upgrading an existing educational quiz website. The current site already includes:
+
+* Subject selection
+* Difficulty-based question selection (Very Easy to Very Hard)
+* Static and dynamic quizzes
+* AI that helps adjust question difficulty
+
+Objective:
+
+Upgrade the site to fully implement the functionality and structure shown in the attached flowchart. This includes student dashboards, AI-based reports, and progress tracking.
+
+Changes to Make:
+
+1. Dashboard
+
+* Update the Student Profile section so that it contains a summary of the user’s performance, quiz attempts, and completed topics.
+* Dashboard should visualize this data and allow access to the roadmap and quiz modules.
+* Please remove the grade level from the student dashboard
+
+2. Quiz Flow
+
+* Update the quiz flow:
+
+  * Start from Subject Selection
+  * Then go to Topic Selection
+  * Then Level Selection (Very Easy → Very Hard)
+
+* Show **completion rate (%) per level and topic to indicate proficiency.
+
+* Quizzes should still have:
+
+  * Option to re-do
+  * Randomized questions
+
+* Remove the PISA MATHS quiz
+
+* Remove the Adaptive quiz system and functionality
+
+3. Road Map Page
+
+* Implement a **visualization component** (like a progress tree or timeline) that shows a user’s learning journey, progress per topic, and what’s next.
+* Use stored quiz results and completion rate to determine what parts of the topic map are "unlocked" or "in progress"
+
+4. AI Support Page
+
+* Move the Current Nura AI sidebar and turn it into a full page. 
+
+Report Section
+
+* Use the AI to:
+
+  * Generate a detailed Report of the user's learning habits and performance.
+  * Identify weak areas based on statistics.
+  * Give recommendations for topics/fields to revise or attempt next.
+
+Statistics Section
+
+* Show per-topic and per-level performance analytics.
+* Include charts/graphs like:
+
+  * Accuracy %
+  * Time per question
+  * Attempted vs. completed quizzes
+  * Strength vs. Weakness radar chart
+
+Prediction Section
+
+* Move the implemented topic prediction system here
+
+Optional:
+
+Backend: Store user quiz history, completion rate, AI feedback, and dashboard data in a database (e.g., Firebase or Supabase)
+Frontend: Use React or Vue for interactive components like Roadmap & Dashboard
+AI Integration: Connect OpenAI API for recommendations if available
+
+Notes:
+
+* Maintain a clean and intuitive UI
+* Ensure all quiz questions, results, and reports are dynamically fetched and updated
+* The AI report should be triggered automatically after a quiz is completed
+

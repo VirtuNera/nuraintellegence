@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Level Selection - {{ topic.name }} - Nura AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h1 class="display-4">{{ topic.name }}</h1>
+                <p class="lead text-muted">Choose your difficulty level</p>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb justify-content-center">
+                        <li class="breadcrumb-item"><a href="{{ url_for('learner_dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('subject_selection') }}">Subjects</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('topic_selection', subject_id=topic.subject.subject_id) }}">{{ topic.subject.name }}</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ topic.name }}</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        {% for level in levels %}
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm level-card">
+                <div class="card-body text-center p-4">
+                    <div class="mb-4">
+                        {% if level.name == 'Very Easy' %}
+                            <i class="fas fa-seedling fa-4x text-success"></i>
+                        {% elif level.name == 'Easy' %}
+                            <i class="fas fa-leaf fa-4x text-info"></i>
+                        {% elif level.name == 'Medium' %}
+                            <i class="fas fa-tree fa-4x text-warning"></i>
+                        {% elif level.name == 'Hard' %}
+                            <i class="fas fa-mountain fa-4x text-danger"></i>
+                        {% elif level.name == 'Very Hard' %}
+                            <i class="fas fa-fire fa-4x text-dark"></i>
+                        {% endif %}
+                    </div>
+                    
+                    <h4 class="card-title mb-3">{{ level.name }}</h4>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-question-circle me-1"></i>
+                            {{ level.question_count }} questions available
+                        </small>
+                    </div>
+                    
+                    <!-- Progress Section -->
+                    {% if level.progress %}
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small text-muted">Completion Rate</span>
+                            <span class="badge bg-{{ 'success' if level.progress.completion_rate >= 80 else 'warning' if level.progress.completion_rate >= 60 else 'danger' }}">
+                                {{ level.progress.completion_rate }}%
+                            </span>
+                        </div>
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-{{ 'success' if level.progress.completion_rate >= 80 else 'warning' if level.progress.completion_rate >= 60 else 'danger' }}" 
+                                 role="progressbar" style="width: {{ level.progress.completion_rate }}%">
+                            </div>
+                        </div>
+                        
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="small text-muted">Best Score</div>
+                                <div class="fw-bold">{{ level.progress.best_score }}%</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="small text-muted">Attempts</div>
+                                <div class="fw-bold">{{ level.progress.attempts }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Unlock Status -->
+                    {% if level.is_locked %}
+                    <div class="mb-3">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-lock me-2"></i>
+                            Complete easier levels first
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('start_quiz', topic_id=topic.topic_id, difficulty=level.name) }}" 
+                           class="btn btn-{{ 'primary' if not level.is_locked else 'secondary' }} btn-lg {{ 'disabled' if level.is_locked else '' }}">
+                            <i class="fas fa-play me-2"></i>
+                            Start Quiz
+                        </a>
+                        
+                        {% if level.progress and level.progress.attempts > 0 %}
+                        <a href="{{ url_for('quiz_history', topic_id=topic.topic_id, difficulty=level.name) }}" 
+                           class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-history me-1"></i>
+                            View History
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('topic_selection', subject_id=topic.subject.subject_id) }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>
+                Back to Topics
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add hover effects to level cards
+    const levelCards = document.querySelectorAll('.level-card');
+    
+    levelCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            if (!this.querySelector('.disabled')) {
+                this.style.transform = 'translateY(-10px)';
+                this.style.transition = 'transform 0.3s ease';
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+{% endblock %}

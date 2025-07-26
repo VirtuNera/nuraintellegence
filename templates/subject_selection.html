@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Subject Selection - Nura AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h1 class="display-4">Choose Your Subject</h1>
+                <p class="lead text-muted">Select a subject to begin your learning journey</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        {% for subject in subjects %}
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm subject-card" style="cursor: pointer;">
+                <div class="card-body text-center p-4">
+                    <div class="mb-4">
+                        {% if subject.name == 'Mathematics' or 'Math' in subject.name %}
+                            <i class="fas fa-calculator fa-4x text-primary"></i>
+                        {% elif subject.name == 'Science' %}
+                            <i class="fas fa-flask fa-4x text-success"></i>
+                        {% elif subject.name == 'English' %}
+                            <i class="fas fa-book fa-4x text-info"></i>
+                        {% elif subject.name == 'History' %}
+                            <i class="fas fa-landmark fa-4x text-warning"></i>
+                        {% elif 'Addition' in subject.name or 'Sum' in subject.name %}
+                            <i class="fas fa-plus fa-4x text-success"></i>
+                        {% elif 'Subtraction' in subject.name %}
+                            <i class="fas fa-minus fa-4x text-danger"></i>
+                        {% elif 'Multiplication' in subject.name %}
+                            <i class="fas fa-times fa-4x text-warning"></i>
+                        {% elif 'Division' in subject.name %}
+                            <i class="fas fa-divide fa-4x text-info"></i>
+                        {% elif 'Fraction' in subject.name %}
+                            <i class="fas fa-percentage fa-4x text-purple"></i>
+                        {% elif 'Algebra' in subject.name %}
+                            <i class="fas fa-square-root-alt fa-4x text-secondary"></i>
+                        {% else %}
+                            <i class="fas fa-book fa-4x text-primary"></i>
+                        {% endif %}
+                    </div>
+                    
+                    <h4 class="card-title mb-3">{{ subject.name }}</h4>
+                    
+                    {% if subject.description %}
+                    <p class="card-text text-muted mb-3">{{ subject.description }}</p>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-list-ul me-1"></i>
+                            {{ subject.topics|length }} topics available
+                        </small>
+                    </div>
+                    
+                    <!-- Progress indicator if available -->
+                    {% if subject_progress and subject_progress.get(subject.subject_id) %}
+                    <div class="mb-3">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: {{ subject_progress[subject.subject_id] }}%"
+                                 aria-valuenow="{{ subject_progress[subject.subject_id] }}" 
+                                 aria-valuemin="0" aria-valuemax="100">
+                                {{ subject_progress[subject.subject_id] }}% Complete
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('topic_selection', subject_id=subject.subject_id) }}" 
+                       class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-arrow-right me-2"></i>
+                        Explore Topics
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('learner_dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add hover effects to subject cards
+    const subjectCards = document.querySelectorAll('.subject-card');
+    
+    subjectCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px)';
+            this.style.transition = 'transform 0.3s ease';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+        
+        // Click handler for the entire card
+        card.addEventListener('click', function() {
+            const link = this.querySelector('a');
+            if (link) {
+                link.click();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

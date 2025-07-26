@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz Set Results{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Set {{ results.set_results.set_number }} Results
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Performance Summary -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="performance-card">
+                                <div class="performance-score">
+                                    <div class="score-circle">
+                                        <div class="score-value">{{ "%.1f"|format(results.set_results.score) }}%</div>
+                                        <div class="score-label">Score</div>
+                                    </div>
+                                </div>
+                                <div class="performance-details">
+                                    <div class="detail-row">
+                                        <span class="detail-label">Correct Answers:</span>
+                                        <span class="detail-value">{{ results.set_results.correct_answers }} / {{ results.set_results.total_questions }}</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Completion Time:</span>
+                                        <span class="detail-value">{{ (results.set_results.completion_time // 60) }}:{{ "%02d"|format(results.set_results.completion_time % 60) }}</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Avg. Time/Question:</span>
+                                        <span class="detail-value">{{ "%.1f"|format(results.set_results.average_time_per_question) }}s</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="difficulty-progression">
+                                <h5>Difficulty Progression</h5>
+                                <div class="difficulty-flow">
+                                    <div class="difficulty-step">
+                                        <div class="step-badge current">
+                                            {{ results.set_results.difficulty_level }}
+                                        </div>
+                                        <div class="step-label">Current Set</div>
+                                    </div>
+                                    <div class="arrow">
+                                        <i class="fas fa-arrow-right"></i>
+                                    </div>
+                                    <div class="difficulty-step">
+                                        <div class="step-badge next">
+                                            {{ results.session_progress.next_difficulty }}
+                                        </div>
+                                        <div class="step-label">Next Set</div>
+                                    </div>
+                                </div>
+                                
+                                {% if results.session_progress.next_difficulty != results.set_results.difficulty_level %}
+                                <div class="difficulty-change mt-3">
+                                    {% if results.session_progress.next_difficulty in ['Hard', 'Very Hard'] and results.set_results.difficulty_level in ['Very Easy', 'Easy', 'Medium'] %}
+                                    <div class="alert alert-success">
+                                        <i class="fas fa-arrow-up me-2"></i>
+                                        <strong>Great job!</strong> Difficulty increased due to excellent performance.
+                                    </div>
+                                    {% elif results.session_progress.next_difficulty in ['Very Easy', 'Easy'] and results.set_results.difficulty_level in ['Medium', 'Hard', 'Very Hard'] %}
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-arrow-down me-2"></i>
+                                        <strong>Adjusting:</strong> Difficulty decreased to help you build confidence.
+                                    </div>
+                                    {% else %}
+                                    <div class="alert alert-primary">
+                                        <i class="fas fa-equals me-2"></i>
+                                        <strong>Steady progress!</strong> Difficulty maintained for consistent learning.
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% else %}
+                                <div class="alert alert-primary mt-3">
+                                    <i class="fas fa-equals me-2"></i>
+                                    <strong>Steady progress!</strong> Difficulty maintained for consistent learning.
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Analysis -->
+                    <div class="performance-analysis mb-4">
+                        <h5>Performance Analysis</h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="metric-card">
+                                    <div class="metric-icon">
+                                        {% if results.set_results.correctness_percentage >= 80 %}
+                                        <i class="fas fa-trophy text-success"></i>
+                                        {% elif results.set_results.correctness_percentage >= 60 %}
+                                        <i class="fas fa-thumbs-up text-primary"></i>
+                                        {% else %}
+                                        <i class="fas fa-book text-info"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="metric-value">{{ "%.1f"|format(results.set_results.correctness_percentage) }}%</div>
+                                    <div class="metric-label">Accuracy</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="metric-card">
+                                    <div class="metric-icon">
+                                        {% if results.set_results.is_fast_completion %}
+                                        <i class="fas fa-bolt text-warning"></i>
+                                        {% else %}
+                                        <i class="fas fa-clock text-secondary"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="metric-value">
+                                        {% if results.set_results.is_fast_completion %}Fast{% else %}Normal{% endif %}
+                                    </div>
+                                    <div class="metric-label">Speed</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="metric-card">
+                                    <div class="metric-icon">
+                                        <i class="fas fa-chart-line text-primary"></i>
+                                    </div>
+                                    <div class="metric-value">{{ results.session_progress.current_set }} / {{ results.session_progress.total_sets }}</div>
+                                    <div class="metric-label">Progress</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Session Progress -->
+                    <div class="session-progress mb-4">
+                        <h5>Overall Session Progress</h5>
+                        <div class="progress mb-2" style="height: 10px;">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: {{ (results.session_progress.current_set / results.session_progress.total_sets) * 100 }}%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">{{ results.session_progress.current_set }} of {{ results.session_progress.total_sets }} sets completed</small>
+                            <small class="text-muted">{{ results.session_progress.total_sets - results.session_progress.current_set }} sets remaining</small>
+                        </div>
+                    </div>
+
+                    <!-- Continue Button -->
+                    <div class="text-center">
+                        <form action="{{ url_for('continue_adaptive_quiz') }}" method="POST">
+                            <input type="hidden" name="session_id" value="{{ results.session_progress.session_id if results.session_progress.session_id else results.set_results.session_id }}">
+                            <input type="hidden" name="next_set_data" value="{{ results.next_set | tojson | e }}">
+                            
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-play me-2"></i>
+                                Continue to Set {{ results.session_progress.next_set }}
+                            </button>
+                        </form>
+                        
+                        <div class="mt-3">
+                            <a href="{{ url_for('learner_dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-pause me-2"></i>Pause Session
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.performance-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    text-align: center;
+}
+
+.score-circle {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.score-value {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.score-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.performance-details {
+    text-align: left;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.detail-label {
+    opacity: 0.9;
+}
+
+.detail-value {
+    font-weight: bold;
+}
+
+.difficulty-progression {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.difficulty-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.difficulty-step {
+    text-align: center;
+}
+
+.step-badge {
+    background: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.step-badge.current {
+    background: #28a745;
+}
+
+.step-badge.next {
+    background: #007bff;
+}
+
+.arrow {
+    margin: 0 15px;
+    font-size: 1.2rem;
+    color: #6c757d;
+}
+
+.metric-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.metric-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.metric-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.session-progress {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+}
+</style>
+{% endblock %}

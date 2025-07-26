@@ -1,0 +1,61 @@
+I want to implement an adaptive quiz system that dynamically changes its difficulty after each question set (page).
+
+Details:
+
+Each "question set" is pre-defined in the MySQL database with a difficulty column: 'Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'.
+
+When starting a quiz session, the student selects their initial difficulty level (from the five levels above).
+
+The first question set is served at this chosen level.
+
+After each set, the system evaluates the student’s performance, defined by correctness % and completion speed.
+
+Depending on performance thresholds (e.g., >80% correct and fast → increase difficulty, 60–79% → maintain, <60% → decrease), the next set’s difficulty is dynamically adjusted.
+
+This continues for a fixed number of sets (e.g., 3–5 pages).
+
+After the final set, the student’s final proficiency score is saved in the students table for future reference.
+
+Database:
+
+Using MySQL via XAMPP.
+
+You may use SQLAlchemy as ORM, or raw MySQL connector if easier.
+
+Please help me implement:
+
+Database schema / table designs:
+
+question_sets table: stores questions, difficulty level, etc.
+
+students table: stores student info and final proficiency score.
+
+student_quiz_sessions table: tracks each session’s chosen start difficulty, per-set results, final proficiency, timestamps.
+
+Backend logic to:
+
+Serve the first question set based on student’s chosen difficulty.
+
+Evaluate correctness % and completion speed after each set.
+
+Decide the next difficulty level using defined thresholds.
+
+Track and update the student’s proficiency score in the database.
+
+Flask routes / controller logic to:
+
+Display difficulty selection page.
+
+Serve question sets and receive answers.
+
+Route to the next set dynamically.
+
+Save results at the end of the quiz.
+
+Suggestions for scalable architecture and secure database usage (e.g., connection pooling, input validation).
+
+Requirements:
+
+Provide clear, modular code snippets for each part.
+
+Include explanations for key logic and best practices for possible future extension (e.g., new difficulty levels or adaptive algorithms).

@@ -1,0 +1,509 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Nura AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="dashboard-title">
+                    <i class="fas fa-user-shield me-3"></i>Admin Dashboard
+                </h1>
+                <div class="text-muted">
+                    Welcome, {{ admin.user.full_name }}
+                    {% if admin.department %}
+                        | {{ admin.department }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Overview Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card bg-gradient-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title mb-0">Total Users</h5>
+                            <h2 class="display-6 mb-0">{{ analytics.system_overview.total_users }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                    <small class="opacity-75">
+                        <i class="fas fa-arrow-up me-1"></i>{{ analytics.system_overview.new_users_week }} this week
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card bg-gradient-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title mb-0">Learners</h5>
+                            <h2 class="display-6 mb-0">{{ analytics.system_overview.total_students }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-graduation-cap fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                    <small class="opacity-75">
+                        Active 7d: {{ analytics.system_overview.active_users_7d }}
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card bg-gradient-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title mb-0">Educators</h5>
+                            <h2 class="display-6 mb-0">{{ analytics.system_overview.total_teachers }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chalkboard-teacher fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                    <small class="opacity-75">
+                        Active educators
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card bg-gradient-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title mb-0">Quizzes Taken</h5>
+                            <h2 class="display-6 mb-0">{{ analytics.content_metrics.total_quizzes }}</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-question-circle fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                    <small class="opacity-75">
+                        {{ analytics.performance_metrics.recent_quizzes }} this week
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Metrics Row -->
+    <div class="row mb-4">
+        <div class="col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Performance Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <h3 class="text-primary">{{ analytics.performance_metrics.average_score }}%</h3>
+                                <p class="text-muted mb-0">Average Score</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h3 class="text-success">{{ analytics.performance_metrics.completion_rate }}%</h3>
+                            <p class="text-muted mb-0">Pass Rate</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <h4>{{ analytics.content_metrics.total_subjects }}</h4>
+                                <small class="text-muted">Subjects</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h4>{{ analytics.content_metrics.total_topics }}</h4>
+                            <small class="text-muted">Topics</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 mb-3">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Daily Activity (Last 7 Days)</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="dailyActivityChart" width="400" height="150"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Analysis Row -->
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-3">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-star me-2"></i>Top Performers</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Learner</th>
+                                    <th>Avg Score</th>
+                                    <th>Quizzes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in analytics.top_performers[:5] %}
+                                <tr>
+                                    <td>{{ student.name }}</td>
+                                    <td><span class="badge bg-success">{{ student.avg_score }}%</span></td>
+                                    <td>{{ student.quiz_count }}</td>
+                                </tr>
+                                {% endfor %}
+                                {% if not analytics.top_performers %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">No data available</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-3">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Learners Needing Help</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Learner</th>
+                                    <th>Avg Score</th>
+                                    <th>Quizzes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in analytics.struggling_students[:5] %}
+                                <tr>
+                                    <td>{{ student.name }}</td>
+                                    <td><span class="badge bg-danger">{{ student.avg_score }}%</span></td>
+                                    <td>{{ student.quiz_count }}</td>
+                                </tr>
+                                {% endfor %}
+                                {% if not analytics.struggling_students %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">All students performing well!</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject Performance and Popular Topics -->
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-3">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-book me-2"></i>Subject Performance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Avg Score</th>
+                                    <th>Attempts</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for subject in analytics.subject_performance %}
+                                <tr>
+                                    <td>{{ subject.subject }}</td>
+                                    <td>
+                                        <span class="badge {% if subject.avg_score >= 80 %}bg-success{% elif subject.avg_score >= 60 %}bg-warning{% else %}bg-danger{% endif %}">
+                                            {{ subject.avg_score }}%
+                                        </span>
+                                    </td>
+                                    <td>{{ subject.quiz_count }}</td>
+                                </tr>
+                                {% endfor %}
+                                {% if not analytics.subject_performance %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">No data available</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-3">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-fire me-2"></i>Popular Topics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Topic</th>
+                                    <th>Subject</th>
+                                    <th>Attempts</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for topic in analytics.popular_topics[:5] %}
+                                <tr>
+                                    <td>{{ topic.topic }}</td>
+                                    <td><small class="text-muted">{{ topic.subject }}</small></td>
+                                    <td><span class="badge bg-primary">{{ topic.quiz_count }}</span></td>
+                                </tr>
+                                {% endfor %}
+                                {% if not analytics.popular_topics %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">No data available</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Health and Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-lg-8 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-server me-2"></i>System Health</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="p-3 bg-light rounded">
+                                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                <h6>System Status</h6>
+                                <span class="badge bg-success">Online</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="p-3 bg-light rounded">
+                                <i class="fas fa-database fa-2x text-info mb-2"></i>
+                                <h6>Database</h6>
+                                <span class="badge bg-success">Connected</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="p-3 bg-light rounded">
+                                <i class="fas fa-robot fa-2x text-primary mb-2"></i>
+                                <h6>AI Service</h6>
+                                <span class="badge bg-success">Active</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="p-3 bg-light rounded">
+                                <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
+                                <h6>Security</h6>
+                                <span class="badge bg-success">Secure</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="refreshData()">
+                            <i class="fas fa-sync-alt me-2"></i>Refresh Data
+                        </button>
+                        <button class="btn btn-outline-info" onclick="exportReport()">
+                            <i class="fas fa-download me-2"></i>Export Report
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="viewLogs()">
+                            <i class="fas fa-list me-2"></i>View System Logs
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="manageUsers()">
+                            <i class="fas fa-users-cog me-2"></i>Manage Users
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity and AI Insights -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>AI-Powered Insights & Recommendations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-info-circle me-2"></i>Engagement Insight</h6>
+                                <p class="mb-0">{{ analytics.system_overview.active_users_7d }} of {{ analytics.system_overview.total_students }} students were active this week ({{ "%.1f"|format((analytics.system_overview.active_users_7d / analytics.system_overview.total_students * 100) if analytics.system_overview.total_students > 0 else 0) }}% engagement rate).</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="alert alert-success">
+                                <h6><i class="fas fa-chart-line me-2"></i>Performance Trend</h6>
+                                <p class="mb-0">Overall platform performance at {{ analytics.performance_metrics.average_score }}% average score with {{ analytics.performance_metrics.completion_rate }}% pass rate.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="alert alert-warning">
+                                <h6><i class="fas fa-exclamation-triangle me-2"></i>Action Required</h6>
+                                <p class="mb-0">{{ analytics.struggling_students|length }} students need additional support. Consider targeted interventions.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Chart.js for daily activity
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('dailyActivityChart').getContext('2d');
+    const activityData = {{ analytics.daily_activity | tojson }};
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: activityData.map(d => new Date(d.date).toLocaleDateString()),
+            datasets: [{
+                label: 'Daily Quiz Attempts',
+                data: activityData.map(d => d.quizzes),
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                tension: 0.1,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+});
+
+// Quick action functions
+function refreshData() {
+    location.reload();
+}
+
+function exportReport() {
+    alert('Export functionality would be implemented here');
+}
+
+function viewLogs() {
+    alert('System logs viewer would be implemented here');
+}
+
+function manageUsers() {
+    alert('User management interface would be implemented here');
+}
+</script>
+
+<style>
+.stat-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(45deg, #28a745, #1e7e34);
+}
+
+.bg-gradient-info {
+    background: linear-gradient(45deg, #17a2b8, #117a8b);
+}
+
+.bg-gradient-warning {
+    background: linear-gradient(45deg, #ffc107, #e0a800);
+}
+
+.dashboard-title {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 10px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    border-radius: 10px 10px 0 0 !important;
+}
+
+.alert {
+    border: none;
+    border-radius: 10px;
+}
+</style>
+{% endblock %}

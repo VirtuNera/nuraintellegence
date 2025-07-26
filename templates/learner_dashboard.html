@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}Learner Dashboard - Nura AI{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-12">
+            <!-- Welcome Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card bg-gradient-primary text-white">
+                        <div class="card-body">
+                            <h2 class="mb-2">Welcome back, {{ learner.user.full_name }}!</h2>
+                            <p class="mb-0">Ready to continue your learning journey? Let's see how you're progressing.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Performance Overview -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-chart-line fa-2x text-success mb-2"></i>
+                            <h5>Overall Progress</h5>
+                            <h3 class="text-success">{{ "%.1f"|format(performance_data.subject_proficiency.values()|list|average|default(0)) }}%</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-quiz fa-2x text-primary mb-2"></i>
+                            <h5>Quizzes Taken</h5>
+                            <h3 class="text-primary">{{ performance_data.recent_quizzes|length }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-trophy fa-2x text-warning mb-2"></i>
+                            <h5>Topics Completed</h5>
+                            <h3 class="text-warning">{{ performance_data.completed_topics|default(0) }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Subject Proficiency -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-book me-2"></i>
+                                Subject Proficiency
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% for subject, proficiency in performance_data.subject_proficiency.items() %}
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-bold">{{ subject }}</span>
+                                    <span class="badge bg-{{ 'success' if proficiency >= 80 else 'warning' if proficiency >= 60 else 'danger' }}">
+                                        {{ "%.1f"|format(proficiency) }}%
+                                    </span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-{{ 'success' if proficiency >= 80 else 'warning' if proficiency >= 60 else 'danger' }}" 
+                                         role="progressbar" style="width: {{ proficiency }}%">
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Quizzes -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-history me-2"></i>
+                                Recent Quiz Performance
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="performanceChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Navigation Cards -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-play-circle fa-2x text-primary mb-2"></i>
+                            <h5>Start Quiz</h5>
+                            <p class="text-muted small">Choose a subject and topic to begin your quiz</p>
+                            <a href="{{ url_for('subject_selection') }}" class="btn btn-primary">
+                                <i class="fas fa-arrow-right me-1"></i>
+                                Select Subject
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-route fa-2x text-info mb-2"></i>
+                            <h5>Learning Roadmap</h5>
+                            <p class="text-muted small">Track your progress and see what's next</p>
+                            <a href="{{ url_for('learning_roadmap') }}" class="btn btn-info">
+                                <i class="fas fa-map me-1"></i>
+                                View Roadmap
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-robot fa-2x text-success mb-2"></i>
+                            <h5>AI Support</h5>
+                            <p class="text-muted small">Get personalized reports and recommendations</p>
+                            <a href="{{ url_for('ai_support') }}" class="btn btn-success btn-sm">
+                                <i class="fas fa-brain me-1"></i>
+                                AI Reports
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-chart-bar fa-2x text-warning mb-2"></i>
+                            <h5>Statistics</h5>
+                            <p class="text-muted small">View detailed performance analytics</p>
+                            <a href="{{ url_for('ai_support') }}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-chart-line me-1"></i>
+                                View Stats
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-history fa-2x text-secondary mb-2"></i>
+                            <h5>Quiz History</h5>
+                            <p class="text-muted small">Review your past quiz attempts</p>
+                            <a href="{{ url_for('quiz_history') }}" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-list me-1"></i>
+                                View History
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script>
+// Performance Chart
+const ctx = document.getElementById('performanceChart').getContext('2d');
+const performanceChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [{% for quiz in performance_data.recent_quizzes %}'{{ quiz.date }}'{% if not loop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Quiz Scores',
+            data: [{% for quiz in performance_data.recent_quizzes %}{{ quiz.score }}{% if not loop.last %},{% endif %}{% endfor %}],
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            tension: 0.1,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Your Quiz Performance Trend'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function(value) {
+                        return value + '%';
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

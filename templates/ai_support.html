@@ -1,0 +1,421 @@
+{% extends "base.html" %}
+
+{% block title %}AI Support - Nura AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center mb-5">
+                <h1 class="display-4">
+                    <i class="fas fa-robot text-primary me-3"></i>
+                    AI Support Center
+                </h1>
+                <p class="lead text-muted">Get personalized insights, reports, and recommendations powered by AI</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <ul class="nav nav-tabs justify-content-center" id="aiTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="report-tab" data-bs-toggle="tab" data-bs-target="#report" type="button" role="tab">
+                        <i class="fas fa-file-alt me-2"></i>AI Reports
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="statistics-tab" data-bs-toggle="tab" data-bs-target="#statistics" type="button" role="tab">
+                        <i class="fas fa-chart-bar me-2"></i>Statistics
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="predictions-tab" data-bs-toggle="tab" data-bs-target="#predictions" type="button" role="tab">
+                        <i class="fas fa-brain me-2"></i>Predictions
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="aiTabsContent">
+        <!-- AI Reports Tab -->
+        <div class="tab-pane fade show active" id="report" role="tabpanel">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-file-alt me-2"></i>
+                                Personalized Learning Report
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if ai_report %}
+                            <!-- Overall Assessment -->
+                            <div class="mb-4">
+                                <h6 class="text-primary">
+                                    <i class="fas fa-chart-bar me-2"></i>
+                                    Overall Assessment
+                                </h6>
+                                <div class="alert alert-info">
+                                    <p class="mb-0">{{ ai_report.overall_assessment }}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Strengths and Weaknesses -->
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <h6 class="text-success">
+                                        <i class="fas fa-thumbs-up me-2"></i>
+                                        Your Strengths
+                                    </h6>
+                                    <div class="card border-success">
+                                        <div class="card-body">
+                                            <ul class="list-unstyled mb-0">
+                                                {% for strength in ai_report.strengths %}
+                                                <li class="mb-2">
+                                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                                    {{ strength }}
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-warning">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        Areas for Improvement
+                                    </h6>
+                                    <div class="card border-warning">
+                                        <div class="card-body">
+                                            <ul class="list-unstyled mb-0">
+                                                {% for area in ai_report.areas_for_improvement %}
+                                                <li class="mb-2">
+                                                    <i class="fas fa-arrow-right text-warning me-2"></i>
+                                                    {{ area }}
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Study Suggestions -->
+                            <div class="mb-4">
+                                <h6 class="text-info">
+                                    <i class="fas fa-lightbulb me-2"></i>
+                                    Personalized Study Suggestions
+                                </h6>
+                                <div class="card border-info">
+                                    <div class="card-body">
+                                        <ul class="list-unstyled mb-0">
+                                            {% for suggestion in ai_report.study_suggestions %}
+                                            <li class="mb-2">
+                                                <i class="fas fa-star text-info me-2"></i>
+                                                {{ suggestion }}
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Learning Habits Analysis -->
+                            {% if ai_report.learning_habits %}
+                            <div class="mb-4">
+                                <h6 class="text-primary">
+                                    <i class="fas fa-clock me-2"></i>
+                                    Learning Habits Analysis
+                                </h6>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p><strong>Best Study Time:</strong> {{ ai_report.learning_habits.best_study_time }}</p>
+                                                <p><strong>Average Session Length:</strong> {{ ai_report.learning_habits.avg_session_length }}</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p><strong>Preferred Difficulty:</strong> {{ ai_report.learning_habits.preferred_difficulty }}</p>
+                                                <p><strong>Study Consistency:</strong> {{ ai_report.learning_habits.consistency_score }}%</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Motivation Message -->
+                            <div class="alert alert-light border-primary">
+                                <h6 class="text-primary mb-2">
+                                    <i class="fas fa-heart me-2"></i>
+                                    Personal Motivation
+                                </h6>
+                                <p class="mb-0">{{ ai_report.motivation_message }}</p>
+                            </div>
+                            
+                            {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-robot fa-3x text-muted mb-3"></i>
+                                <h4>No AI Report Available</h4>
+                                <p class="text-muted">Complete some quizzes to get your personalized AI report!</p>
+                                <a href="{{ url_for('subject_selection') }}" class="btn btn-primary">
+                                    <i class="fas fa-play me-2"></i>
+                                    Start a Quiz
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Tab -->
+        <div class="tab-pane fade" id="statistics" role="tabpanel">
+            <div class="row">
+                <!-- Performance Charts -->
+                <div class="col-lg-8">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Performance Analytics</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="performanceChart" height="300"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Topic Accuracy Comparison</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="topicAccuracyChart" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Statistics Cards -->
+                <div class="col-lg-4">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Quick Stats</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if statistics %}
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Overall Accuracy</span>
+                                    <strong>{{ statistics.overall_accuracy }}%</strong>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: {{ statistics.overall_accuracy }}%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Avg. Time per Question</span>
+                                    <strong>{{ statistics.avg_time_per_question }}s</strong>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Total Questions</span>
+                                    <strong>{{ statistics.total_questions }}</strong>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Correct Answers</span>
+                                    <strong>{{ statistics.correct_answers }}</strong>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Strength vs Weakness</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="strengthWeaknessChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Predictions Tab -->
+        <div class="tab-pane fade" id="predictions" role="tabpanel">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-brain me-2"></i>
+                                ML-Powered Topic Predictions
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center mb-4">
+                                <p class="lead">Get AI-powered recommendations for your next learning topics</p>
+                                <a href="{{ url_for('topic_predictions') }}" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-brain me-2"></i>
+                                    Generate Predictions
+                                </a>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card border-info">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                <i class="fas fa-cogs me-2"></i>
+                                                How It Works
+                                            </h6>
+                                            <ul class="list-unstyled">
+                                                <li><i class="fas fa-check text-success me-2"></i>Analyzes your quiz performance</li>
+                                                <li><i class="fas fa-check text-success me-2"></i>Uses machine learning algorithms</li>
+                                                <li><i class="fas fa-check text-success me-2"></i>Provides personalized recommendations</li>
+                                                <li><i class="fas fa-check text-success me-2"></i>Integrates with Google Gemini AI</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border-success">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                <i class="fas fa-star me-2"></i>
+                                                Benefits
+                                            </h6>
+                                            <ul class="list-unstyled">
+                                                <li><i class="fas fa-arrow-right text-info me-2"></i>Optimized learning path</li>
+                                                <li><i class="fas fa-arrow-right text-info me-2"></i>Improved quiz performance</li>
+                                                <li><i class="fas fa-arrow-right text-info me-2"></i>Personalized study plan</li>
+                                                <li><i class="fas fa-arrow-right text-info me-2"></i>AI-powered insights</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <a href="{{ url_for('learner_dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize charts if statistics data is available
+    {% if statistics %}
+    
+    // Performance Chart
+    const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+    new Chart(performanceCtx, {
+        type: 'line',
+        data: {
+            labels: {{ statistics.performance_timeline.labels | safe }},
+            datasets: [{
+                label: 'Accuracy %',
+                data: {{ statistics.performance_timeline.data | safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+    
+    // Topic Accuracy Chart
+    const topicAccuracyCtx = document.getElementById('topicAccuracyChart').getContext('2d');
+    new Chart(topicAccuracyCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ statistics.topic_accuracy.labels | safe }},
+            datasets: [{
+                label: 'Accuracy %',
+                data: {{ statistics.topic_accuracy.data | safe }},
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 205, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+    
+    // Strength vs Weakness Radar Chart
+    const strengthWeaknessCtx = document.getElementById('strengthWeaknessChart').getContext('2d');
+    new Chart(strengthWeaknessCtx, {
+        type: 'radar',
+        data: {
+            labels: {{ statistics.strength_weakness.labels | safe }},
+            datasets: [{
+                label: 'Performance',
+                data: {{ statistics.strength_weakness.data | safe }},
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                pointBackgroundColor: 'rgb(255, 99, 132)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+    
+    {% endif %}
+});
+</script>
+{% endblock %}

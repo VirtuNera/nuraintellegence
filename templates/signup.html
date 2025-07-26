@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - Nura AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Join Nura AI
+                    </h3>
+                    <p class="mb-0 text-light">Create your personalized learning account</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="POST" id="signupForm">
+                        <!-- Account Type Selection -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Account Type</label>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="role" id="student" value="student" required>
+                                        <label class="form-check-label" for="student">
+                                            <div class="p-3 border rounded text-center">
+                                                <i class="fas fa-user-graduate fa-2x text-primary mb-2"></i>
+                                                <h6>Learner</h6>
+                                                <small class="text-muted">Learn and track progress</small>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="role" id="teacher" value="teacher" required>
+                                        <label class="form-check-label" for="teacher">
+                                            <div class="p-3 border rounded text-center">
+                                                <i class="fas fa-chalkboard-teacher fa-2x text-success mb-2"></i>
+                                                <h6>Educator</h6>
+                                                <small class="text-muted">Monitor and guide students</small>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Common Fields -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-12">
+                                <label for="full_name" class="form-label">Full Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="full_name" name="full_name" 
+                                           placeholder="Enter your full name" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3 mb-3">
+                            <div class="col-12">
+                                <label for="email" class="form-label">Email Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-envelope"></i>
+                                    </span>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           placeholder="Enter your email" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="password" class="form-label">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                    <input type="password" class="form-control" id="password" name="password" 
+                                           placeholder="Create password" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="confirm_password" class="form-label">Confirm Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                                           placeholder="Confirm password" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Learner-specific fields -->
+                        <div id="student-fields" class="role-specific-fields" style="display: none;">
+                            <!-- Fields removed per user request -->
+                        </div>
+                        
+                        <!-- Educator-specific fields -->
+                        <div id="teacher-fields" class="role-specific-fields" style="display: none;">
+                            <div class="row g-3 mb-3">
+                                <div class="col-12">
+                                    <label for="school_name" class="form-label">School/Institution</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-school"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="school_name" name="school_name" 
+                                               placeholder="Enter your school name">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Subjects Taught</label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="subjects_taught" value="Mathematics" id="teach_math">
+                                            <label class="form-check-label" for="teach_math">Mathematics</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="subjects_taught" value="Science" id="teach_science">
+                                            <label class="form-check-label" for="teach_science">Science</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="subjects_taught" value="English" id="teach_english">
+                                            <label class="form-check-label" for="teach_english">English</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="subjects_taught" value="History" id="teach_history">
+                                            <label class="form-check-label" for="teach_history">History</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>
+                                Create Account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="card-footer text-center py-3">
+                    <p class="mb-0 text-muted">
+                        Already have an account? 
+                        <a href="{{ url_for('login') }}" class="text-primary text-decoration-none">
+                            <i class="fas fa-sign-in-alt me-1"></i>Sign In
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const studentRadio = document.getElementById('student');
+    const teacherRadio = document.getElementById('teacher');
+    const studentFields = document.getElementById('student-fields');
+    const teacherFields = document.getElementById('teacher-fields');
+    
+    function toggleFields() {
+        if (studentRadio.checked) {
+            studentFields.style.display = 'block';
+            teacherFields.style.display = 'none';
+        } else if (teacherRadio.checked) {
+            studentFields.style.display = 'none';
+            teacherFields.style.display = 'block';
+        }
+    }
+    
+    studentRadio.addEventListener('change', toggleFields);
+    teacherRadio.addEventListener('change', toggleFields);
+    
+    // Password validation
+    const form = document.getElementById('signupForm');
+    form.addEventListener('submit', function(e) {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            alert('Passwords do not match!');
+        }
+    });
+});
+</script>
+{% endblock %}

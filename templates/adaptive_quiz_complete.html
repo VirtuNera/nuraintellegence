@@ -1,0 +1,437 @@
+{% extends "base.html" %}
+
+{% block title %}Adaptive Quiz Complete{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Celebration Header -->
+            <div class="text-center mb-4">
+                <div class="celebration-icon">
+                    <i class="fas fa-trophy text-warning"></i>
+                </div>
+                <h2 class="text-primary">Adaptive Quiz Complete!</h2>
+                <p class="lead text-muted">Congratulations on completing your adaptive learning session</p>
+            </div>
+
+            <div class="row">
+                <!-- Final Score Card -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow final-score-card">
+                        <div class="card-body text-center">
+                            <h4 class="card-title">Final Proficiency Score</h4>
+                            <div class="score-display">
+                                <div class="final-score">{{ "%.1f"|format(results.final_proficiency_score) }}%</div>
+                                <div class="score-badge">
+                                    {% if results.final_proficiency_score >= 90 %}
+                                        <span class="badge bg-success">Excellent</span>
+                                    {% elif results.final_proficiency_score >= 80 %}
+                                        <span class="badge bg-primary">Very Good</span>
+                                    {% elif results.final_proficiency_score >= 70 %}
+                                        <span class="badge bg-info">Good</span>
+                                    {% elif results.final_proficiency_score >= 60 %}
+                                        <span class="badge bg-warning">Fair</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Needs Practice</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Session Summary -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Session Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="summary-stats">
+                                <div class="stat-row">
+                                    <span class="stat-label">Sets Completed:</span>
+                                    <span class="stat-value">{{ results.total_sets_completed }}</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Starting Difficulty:</span>
+                                    <span class="stat-value difficulty-badge-sm bg-info">{{ results.initial_difficulty }}</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Final Difficulty:</span>
+                                    <span class="stat-value difficulty-badge-sm bg-primary">{{ results.final_difficulty }}</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Total Time:</span>
+                                    <span class="stat-value">{{ (results.total_time // 60)|int }}:{{ "%02d"|format((results.total_time % 60)|int) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Trend Chart -->
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Performance Progression</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="performanceChart" height="100"></canvas>
+                </div>
+            </div>
+
+            <!-- Difficulty Adjustments -->
+            {% if results.difficulty_adjustments %}
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Difficulty Adjustments</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for adjustment in results.difficulty_adjustments %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker">
+                                {% if adjustment.to_difficulty in ['Hard', 'Very Hard'] and adjustment.from_difficulty in ['Very Easy', 'Easy', 'Medium'] %}
+                                <i class="fas fa-arrow-up text-success"></i>
+                                {% elif adjustment.to_difficulty in ['Very Easy', 'Easy'] and adjustment.from_difficulty in ['Medium', 'Hard', 'Very Hard'] %}
+                                <i class="fas fa-arrow-down text-info"></i>
+                                {% else %}
+                                <i class="fas fa-equals text-primary"></i>
+                                {% endif %}
+                            </div>
+                            <div class="timeline-content">
+                                <div class="adjustment-info">
+                                    <strong>After Set {{ adjustment.from_set }}:</strong>
+                                    <span class="difficulty-badge-sm bg-secondary">{{ adjustment.from_difficulty }}</span>
+                                    <i class="fas fa-arrow-right mx-2"></i>
+                                    <span class="difficulty-badge-sm bg-primary">{{ adjustment.to_difficulty }}</span>
+                                </div>
+                                <div class="adjustment-reason text-muted">
+                                    {{ adjustment.reason }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Detailed Results -->
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Detailed Set Results</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Set</th>
+                                    <th>Difficulty</th>
+                                    <th>Score</th>
+                                    <th>Accuracy</th>
+                                    <th>Time</th>
+                                    <th>Speed</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for set_result in results.sets_summary %}
+                                <tr>
+                                    <td><strong>{{ set_result.set_number }}</strong></td>
+                                    <td>
+                                        <span class="difficulty-badge-sm bg-{{ 'success' if set_result.difficulty_level == 'Very Easy' else 'info' if set_result.difficulty_level == 'Easy' else 'warning' if set_result.difficulty_level == 'Medium' else 'orange' if set_result.difficulty_level == 'Hard' else 'danger' }}">
+                                            {{ set_result.difficulty_level }}
+                                        </span>
+                                    </td>
+                                    <td>{{ "%.1f"|format(set_result.score) }}%</td>
+                                    <td>{{ set_result.correct_answers }}/{{ set_result.total_questions }}</td>
+                                    <td>{{ (set_result.completion_time // 60) }}:{{ "%02d"|format(set_result.completion_time % 60) }}</td>
+                                    <td>
+                                        {% if set_result.is_fast_completion %}
+                                        <span class="badge bg-success">Fast</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Normal</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center mb-4">
+                <div class="btn-group" role="group">
+                    <a href="{{ url_for('learner_dashboard') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-home me-2"></i>Return to Dashboard
+                    </a>
+                    <button type="button" class="btn btn-success btn-lg" onclick="shareResults()">
+                        <i class="fas fa-share me-2"></i>Share Results
+                    </button>
+                    <button type="button" class="btn btn-info btn-lg" onclick="downloadReport()">
+                        <i class="fas fa-download me-2"></i>Download Report
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI Feedback Section -->
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-robot me-2"></i>Nura AI Insights
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="ai-feedback" class="ai-feedback-content">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Generating insights...</span>
+                            </div>
+                            <p class="mt-2">Nura AI is analyzing your performance...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.celebration-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.final-score-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.score-display {
+    margin: 20px 0;
+}
+
+.final-score {
+    font-size: 3.5rem;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.score-badge {
+    margin-top: 10px;
+}
+
+.summary-stats .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.summary-stats .stat-row:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    font-weight: 500;
+    color: #6c757d;
+}
+
+.stat-value {
+    font-weight: bold;
+}
+
+.difficulty-badge-sm {
+    padding: 4px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    font-size: 1.2rem;
+}
+
+.timeline-content {
+    flex: 1;
+}
+
+.adjustment-info {
+    margin-bottom: 5px;
+}
+
+.adjustment-reason {
+    font-size: 0.9rem;
+}
+
+.ai-feedback-content {
+    min-height: 120px;
+}
+
+.bg-orange {
+    background-color: #fd7e14 !important;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create performance trend chart
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    const performanceData = {{ results.performance_trend | tojson }};
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: performanceData.map((_, index) => `Set ${index + 1}`),
+            datasets: [{
+                label: 'Score (%)',
+                data: performanceData,
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#007bff',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            },
+            elements: {
+                point: {
+                    hoverRadius: 8
+                }
+            }
+        }
+    });
+    
+    // Generate AI feedback
+    generateAIFeedback();
+});
+
+function generateAIFeedback() {
+    // Simulate AI feedback generation
+    setTimeout(function() {
+        const feedbackContent = `
+            <div class="ai-insight">
+                <h6><i class="fas fa-lightbulb me-2"></i>Performance Analysis</h6>
+                <p>Based on your adaptive quiz session, you demonstrated <strong>{{ "excellent" if results.final_proficiency_score >= 85 else "good" if results.final_proficiency_score >= 70 else "developing" }}</strong> understanding of the topic.</p>
+                
+                {% if results.difficulty_adjustments %}
+                <h6><i class="fas fa-chart-line me-2"></i>Learning Progression</h6>
+                <p>You successfully adapted to {{ results.difficulty_adjustments|length }} difficulty changes, showing strong learning agility.</p>
+                {% endif %}
+                
+                <h6><i class="fas fa-target me-2"></i>Recommendations</h6>
+                <ul>
+                    {% if results.final_proficiency_score >= 85 %}
+                    <li>Consider exploring advanced topics to challenge yourself further</li>
+                    <li>You're ready for more complex problem-solving scenarios</li>
+                    {% elif results.final_proficiency_score >= 70 %}
+                    <li>Focus on reinforcing core concepts with additional practice</li>
+                    <li>Try mixed difficulty sessions to build confidence</li>
+                    {% else %}
+                    <li>Review fundamental concepts before attempting higher difficulties</li>
+                    <li>Practice with easier questions to build a strong foundation</li>
+                    {% endif %}
+                </ul>
+            </div>
+        `;
+        
+        document.getElementById('ai-feedback').innerHTML = feedbackContent;
+    }, 2000);
+}
+
+function shareResults() {
+    const shareData = {
+        title: 'Nura AI Adaptive Quiz Results',
+        text: `I just completed an adaptive quiz with a final score of {{ "%.1f"|format(results.final_proficiency_score) }}%!`,
+        url: window.location.href
+    };
+    
+    if (navigator.share) {
+        navigator.share(shareData);
+    } else {
+        // Fallback for browsers that don't support Web Share API
+        navigator.clipboard.writeText(shareData.text + ' ' + shareData.url);
+        alert('Results copied to clipboard!');
+    }
+}
+
+function downloadReport() {
+    // Create a simple text report
+    const report = `
+NURA AI ADAPTIVE QUIZ REPORT
+============================
+
+Final Proficiency Score: {{ "%.1f"|format(results.final_proficiency_score) }}%
+Starting Difficulty: {{ results.initial_difficulty }}
+Final Difficulty: {{ results.final_difficulty }}
+Sets Completed: {{ results.total_sets_completed }}
+Total Time: {{ (results.total_time // 60)|int }}:{{ "%02d"|format((results.total_time % 60)|int) }}
+
+Detailed Results:
+{% for set_result in results.sets_summary %}
+Set {{ set_result.set_number }}: {{ "%.1f"|format(set_result.score) }}% ({{ set_result.difficulty_level }})
+{% endfor %}
+
+Generated by Nura AI Learning Platform
+    `.trim();
+    
+    const blob = new Blob([report], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'nura-ai-quiz-report.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

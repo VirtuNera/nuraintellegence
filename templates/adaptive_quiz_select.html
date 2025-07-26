@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Adaptive Quiz - Select Difficulty{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-brain me-2"></i>
+                        Adaptive Quiz: {{ topic.name }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>How Adaptive Quizzes Work</h5>
+                        <p class="text-muted">
+                            This intelligent quiz system adjusts the difficulty based on your performance. 
+                            Start with your preferred difficulty level, and the system will automatically 
+                            increase or decrease difficulty based on your answers and speed.
+                        </p>
+                        
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-lightbulb me-2"></i>Performance Rules:</h6>
+                            <ul class="mb-0">
+                                <li><strong>High Performance:</strong> 80%+ correct + fast completion → Difficulty increases</li>
+                                <li><strong>Good Performance:</strong> 60-79% correct → Difficulty maintained</li>
+                                <li><strong>Needs Practice:</strong> Below 60% correct → Difficulty decreases</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <form action="{{ url_for('start_adaptive_quiz') }}" method="POST" id="difficultyForm">
+                        <input type="hidden" name="topic_id" value="{{ topic.topic_id }}">
+                        
+                        <div class="mb-4">
+                            <label class="form-label"><strong>Select Your Starting Difficulty Level:</strong></label>
+                            <div class="row g-3">
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card difficulty-card" data-difficulty="Very Easy">
+                                        <div class="card-body text-center">
+                                            <div class="difficulty-icon text-success">
+                                                <i class="fas fa-seedling fa-2x"></i>
+                                            </div>
+                                            <h6 class="mt-2">Very Easy</h6>
+                                            <p class="small text-muted">Perfect for beginners</p>
+                                            <input type="radio" name="initial_difficulty" value="Very Easy" class="form-check-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card difficulty-card" data-difficulty="Easy">
+                                        <div class="card-body text-center">
+                                            <div class="difficulty-icon text-info">
+                                                <i class="fas fa-leaf fa-2x"></i>
+                                            </div>
+                                            <h6 class="mt-2">Easy</h6>
+                                            <p class="small text-muted">Basic understanding</p>
+                                            <input type="radio" name="initial_difficulty" value="Easy" class="form-check-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card difficulty-card" data-difficulty="Medium">
+                                        <div class="card-body text-center">
+                                            <div class="difficulty-icon text-warning">
+                                                <i class="fas fa-tree fa-2x"></i>
+                                            </div>
+                                            <h6 class="mt-2">Medium</h6>
+                                            <p class="small text-muted">Intermediate level</p>
+                                            <input type="radio" name="initial_difficulty" value="Medium" class="form-check-input" checked>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card difficulty-card" data-difficulty="Hard">
+                                        <div class="card-body text-center">
+                                            <div class="difficulty-icon text-orange">
+                                                <i class="fas fa-mountain fa-2x"></i>
+                                            </div>
+                                            <h6 class="mt-2">Hard</h6>
+                                            <p class="small text-muted">Advanced challenges</p>
+                                            <input type="radio" name="initial_difficulty" value="Hard" class="form-check-input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card difficulty-card" data-difficulty="Very Hard">
+                                        <div class="card-body text-center">
+                                            <div class="difficulty-icon text-danger">
+                                                <i class="fas fa-fire fa-2x"></i>
+                                            </div>
+                                            <h6 class="mt-2">Very Hard</h6>
+                                            <p class="small text-muted">Expert level</p>
+                                            <input type="radio" name="initial_difficulty" value="Very Hard" class="form-check-input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="total_sets" class="form-label"><strong>Number of Question Sets:</strong></label>
+                            <select name="total_sets" id="total_sets" class="form-select">
+                                <option value="3">3 Sets (Quick Session)</option>
+                                <option value="5" selected>5 Sets (Standard)</option>
+                                <option value="7">7 Sets (Extended)</option>
+                            </select>
+                            <div class="form-text">Each set contains 5-10 questions. The difficulty will adapt after each set.</div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('learner_dashboard') }}" class="btn btn-secondary me-2">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-play me-2"></i>Start Adaptive Quiz
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.difficulty-card {
+    border: 2px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 160px;
+}
+
+.difficulty-card:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.difficulty-card.selected {
+    border-color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.difficulty-icon {
+    transition: transform 0.3s ease;
+}
+
+.difficulty-card:hover .difficulty-icon {
+    transform: scale(1.1);
+}
+
+.text-orange {
+    color: #fd7e14 !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle difficulty card selection
+    const difficultyCards = document.querySelectorAll('.difficulty-card');
+    const radioInputs = document.querySelectorAll('input[name="initial_difficulty"]');
+    
+    // Set initial selected state
+    updateSelectedCard();
+    
+    difficultyCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const difficulty = this.dataset.difficulty;
+            const radio = this.querySelector('input[type="radio"]');
+            radio.checked = true;
+            updateSelectedCard();
+        });
+    });
+    
+    radioInputs.forEach(radio => {
+        radio.addEventListener('change', updateSelectedCard);
+    });
+    
+    function updateSelectedCard() {
+        difficultyCards.forEach(card => {
+            const radio = card.querySelector('input[type="radio"]');
+            if (radio.checked) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        });
+    }
+    
+    // Form validation
+    document.getElementById('difficultyForm').addEventListener('submit', function(e) {
+        const selectedDifficulty = document.querySelector('input[name="initial_difficulty"]:checked');
+        if (!selectedDifficulty) {
+            e.preventDefault();
+            alert('Please select a difficulty level to start the adaptive quiz.');
+        }
+    });
+});
+</script>
+{% endblock %}
