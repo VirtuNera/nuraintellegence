@@ -754,11 +754,11 @@ def topic_predictions():
             flash('Student profile not found', 'error')
             return redirect(url_for('learner_dashboard'))
         
-        # Get topic predictions
-        predictions = nura_ai.predict_learning_topics(learner.student_id)
+        # Get instant topic predictions using fast service
+        predictions = fast_prediction_service.get_topic_predictions(learner.student_id)
         
-        # Get performance analysis
-        analysis = nura_ai.get_topic_performance_analysis(learner.student_id)
+        # Get instant performance analysis using fast service
+        analysis = fast_prediction_service.get_performance_analysis(learner.student_id)
         
         return render_template('topic_predictions.html',
                              predictions=predictions,
