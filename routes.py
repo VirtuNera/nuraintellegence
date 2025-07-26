@@ -136,7 +136,7 @@ def learner_dashboard():
     cache_key = f"dashboard_data_{learner.student_id}"
     performance_data = cache.get(cache_key)
     if not performance_data:
-        performance_data = DatabaseOptimizer.get_learner_dashboard_data(learner.student_id)
+        performance_data = DatabaseOptimizer.get_student_performance_optimized(learner.student_id)
         cache.set(cache_key, performance_data, ttl=300)  # 5 minute cache
     
     # Get AI feedback using fast service for better performance
