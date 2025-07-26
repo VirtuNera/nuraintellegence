@@ -5,6 +5,7 @@ from app import app, db
 from backend.models import User, Student, Teacher, Admin, Subject, Topic, Quiz, QuizResponse, PerformanceTrend, QuestionSet, Question, AdaptiveQuizSession
 from backend.ai_service import NuraAI
 from backend.fast_ai_service import fast_ai
+from backend.fast_prediction_service import fast_prediction_service
 from backend.unified_quiz_engine import UnifiedQuizEngine
 from backend.database_optimizations import DatabaseOptimizer
 from backend.performance_cache import cache
@@ -712,8 +713,8 @@ def api_predict_topics(student_id):
         elif current_user.role not in ['educator', 'admin']:
             return jsonify({'error': 'Unauthorized'}), 403
         
-        # Get topic predictions
-        predictions = nura_ai.predict_learning_topics(student_id)
+        # Get instant predictions using fast service
+        predictions = fast_prediction_service.get_topic_predictions(student_id)
         return jsonify(predictions)
         
     except Exception as e:
@@ -732,8 +733,8 @@ def api_performance_analysis(student_id):
         elif current_user.role not in ['educator', 'admin']:
             return jsonify({'error': 'Unauthorized'}), 403
         
-        # Get performance analysis
-        analysis = nura_ai.get_topic_performance_analysis(student_id)
+        # Get fast performance analysis
+        analysis = fast_prediction_service.get_performance_analysis(student_id)
         return jsonify(analysis)
         
     except Exception as e:
@@ -1164,8 +1165,8 @@ def ai_support():
             flash('Student profile not found', 'error')
             return redirect(url_for('learner_dashboard'))
         
-        # Get AI feedback
-        ai_report = nura_ai.generate_learner_feedback(learner.student_id)
+        # Get AI feedback using fast service
+        ai_report = fast_ai.generate_learner_feedback(learner.student_id)
         
         # Get statistics
         quizzes = Quiz.query.filter_by(student_id=learner.student_id).all()
