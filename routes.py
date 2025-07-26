@@ -142,18 +142,12 @@ def learner_dashboard():
     # Get AI feedback using fast service for better performance
     ai_feedback = fast_ai.generate_learner_feedback(learner.student_id)
     
-    # Get available subjects using optimized query
-    subjects_data = DatabaseOptimizer.get_available_subjects_cached()
-    
-    # Convert to format expected by template (list of Subject objects)
-    from backend.models import Subject
-    subjects = []
-    for s in subjects_data:
-        subject = Subject()
-        subject.subject_id = s.subject_id
-        subject.name = s.name
-        subject.description = s.description
-        subjects.append(subject)
+    # Get available subjects using optimized query with caching
+    cache_key = "available_subjects"
+    subjects = cache.get(cache_key)
+    if not subjects:
+        subjects = Subject.query.all()
+        cache.set(cache_key, subjects, ttl=600)  # 10 minute cache
     
     return render_template('learner_dashboard.html', 
                          learner=learner,

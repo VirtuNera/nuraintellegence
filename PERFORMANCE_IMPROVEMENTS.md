@@ -49,7 +49,7 @@
 cache_key = f"dashboard_data_{student_id}"
 performance_data = cache.get(cache_key)
 if not performance_data:
-    performance_data = DatabaseOptimizer.get_learner_dashboard_data(student_id)
+    performance_data = DatabaseOptimizer.get_student_performance_optimized(student_id)
     cache.set(cache_key, performance_data, ttl=300)
 ```
 
