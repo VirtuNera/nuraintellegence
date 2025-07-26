@@ -137,7 +137,17 @@ def learner_dashboard():
     ai_feedback = nura_ai.generate_learner_feedback(learner.student_id)
     
     # Get available subjects using optimized query
-    subjects = DatabaseOptimizer.get_available_subjects_cached()
+    subjects_data = DatabaseOptimizer.get_available_subjects_cached()
+    
+    # Convert to format expected by template (list of Subject objects)
+    from backend.models import Subject
+    subjects = []
+    for s in subjects_data:
+        subject = Subject()
+        subject.subject_id = s.subject_id
+        subject.name = s.name
+        subject.description = s.description
+        subjects.append(subject)
     
     return render_template('learner_dashboard.html', 
                          learner=learner,
@@ -177,7 +187,27 @@ def admin_dashboard():
     admin = current_user.admin_profile
     
     # Get comprehensive admin analytics using optimized queries
-    analytics_data = DatabaseOptimizer.get_dashboard_metrics_optimized()
+    metrics = DatabaseOptimizer.get_dashboard_metrics_optimized()
+    
+    # Add additional metrics that admin dashboard expects
+    from datetime import datetime, timedelta
+    total_users = User.query.count()
+    total_learners = User.query.filter_by(role='student').count()
+    total_educators = User.query.filter_by(role='teacher').count()
+    total_admins = User.query.filter_by(role='admin').count()
+    
+    analytics_data = {
+        **metrics,
+        'total_users': total_users,
+        'total_learners': total_learners,
+        'total_educators': total_educators,
+        'total_admins': total_admins,
+        'total_subjects': Subject.query.count(),
+        'total_topics': Topic.query.count(),
+        'total_questions': Question.query.count(),
+        'total_quizzes': Quiz.query.count(),
+        'total_quiz_responses': QuizResponse.query.count()
+    }
     
     return render_template('admin_dashboard.html',
                          admin=admin,
