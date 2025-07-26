@@ -12,7 +12,7 @@ from sklearn.metrics import accuracy_score, classification_report
 import logging
 from typing import Dict, List, Optional, Tuple
 from app import app, db
-from models import Student, Quiz, QuizResponse, Question, QuestionSet, Topic, Subject
+from .models import Student, Quiz, QuizResponse, Question, QuestionSet, Topic, Subject
 
 class TopicPredictionService:
     """Service for predicting optimal topics for student learning"""

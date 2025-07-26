@@ -3,8 +3,8 @@ import json
 import logging
 from google import genai
 from google.genai import types
-from models import Student, Quiz, QuizResponse, PerformanceTrend, Topic, Subject
-from topic_prediction_service import topic_prediction_service
+from .models import Student, Quiz, QuizResponse, PerformanceTrend, Topic, Subject
+from .topic_prediction_service import topic_prediction_service
 
 class NuraAI:
     def __init__(self):

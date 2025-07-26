@@ -2,18 +2,18 @@ from flask import render_template, request, redirect, url_for, flash, jsonify, s
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db
-from models import User, Student, Teacher, Admin, Subject, Topic, Quiz, QuizResponse, PerformanceTrend, QuestionSet, Question, AdaptiveQuizSession
-from ai_service import NuraAI
-from quiz_engine import QuizEngine
-
-from topic_prediction_service import topic_prediction_service
+from backend.models import User, Student, Teacher, Admin, Subject, Topic, Quiz, QuizResponse, PerformanceTrend, QuestionSet, Question, AdaptiveQuizSession
+from backend.ai_service import NuraAI
+from backend.unified_quiz_engine import UnifiedQuizEngine
+from backend.database_optimizations import DatabaseOptimizer
+from backend.topic_prediction_service import topic_prediction_service
 import json
 import uuid
 from datetime import datetime, timedelta
 
 # Initialize AI service and quiz engines
 nura_ai = NuraAI()
-quiz_engine = QuizEngine()
+quiz_engine = UnifiedQuizEngine()
 
 # Define hidden subjects globally
 HIDDEN_SUBJECTS = ['Mathematics', 'Science', 'English', 'History', 'Geography', 'PISA Mathematics', 'Question Set', 'Performance Log']
@@ -130,15 +130,14 @@ def learner_dashboard():
     
     learner = current_user.student_profile
     
-    # Get performance data
-    performance_data = get_learner_performance_data(learner.student_id)
+    # Get performance data using optimized queries
+    performance_data = DatabaseOptimizer.get_student_performance_optimized(learner.student_id)
     
     # Get AI feedback
     ai_feedback = nura_ai.generate_learner_feedback(learner.student_id)
     
-    # Get available subjects and topics, excluding hidden subjects
-    hidden_subjects = HIDDEN_SUBJECTS
-    subjects = Subject.query.filter(~Subject.name.in_(hidden_subjects)).all()
+    # Get available subjects using optimized query
+    subjects = DatabaseOptimizer.get_available_subjects_cached()
     
     return render_template('learner_dashboard.html', 
                          learner=learner,
@@ -177,8 +176,8 @@ def admin_dashboard():
     
     admin = current_user.admin_profile
     
-    # Get comprehensive admin analytics
-    analytics_data = get_admin_analytics()
+    # Get comprehensive admin analytics using optimized queries
+    analytics_data = DatabaseOptimizer.get_dashboard_metrics_optimized()
     
     return render_template('admin_dashboard.html',
                          admin=admin,

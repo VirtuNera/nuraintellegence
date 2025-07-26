@@ -5,9 +5,18 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
+from backend.environment_config import EnvironmentConfig
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
+
+# Validate environment on startup
+try:
+    EnvironmentConfig.validate_environment()
+except EnvironmentError as e:
+    logging.error(f"Environment validation failed: {e}")
+    # In production, this should cause the app to fail to start
+    # In development, we'll continue with warnings
 
 class Base(DeclarativeBase):
     pass
@@ -17,11 +26,11 @@ login_manager = LoginManager()
 
 # Create the app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET")
+app.secret_key = EnvironmentConfig.get_session_secret()
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Configure the database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+# Configure the database with validation
+app.config["SQLALCHEMY_DATABASE_URI"] = EnvironmentConfig.get_database_url()
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
@@ -35,7 +44,7 @@ login_manager.login_message = 'Please log in to access this page.'
 
 @login_manager.user_loader
 def load_user(user_id):
-    from models import User
+    from backend.models import User
     return User.query.get(int(user_id))
 
 # Custom Jinja2 filters
@@ -54,7 +63,7 @@ def average_filter(values):
 
 with app.app_context():
     # Import models to ensure tables are created
-    import models
+    import backend.models
     db.create_all()
 
 # Import routes
