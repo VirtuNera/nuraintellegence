@@ -59,6 +59,14 @@
                             <div class="card-body">
                                 <p class="question-text mb-4">{{ question.description }}</p>
                                 
+                                <!-- Question Image -->
+                                {% if question.image_url %}
+                                <div class="question-image mb-4 text-center">
+                                    <img src="{{ question.image_url }}" alt="Question {{ question_num }} diagram" 
+                                         class="img-fluid rounded" style="max-width: 100%; max-height: 400px;">
+                                </div>
+                                {% endif %}
+                                
                                 <div class="options-container">
                                     {% if question.options and question.options|length > 0 %}
                                         {% for option in question.options %}

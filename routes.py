@@ -289,7 +289,8 @@ def start_quiz(topic_id, difficulty=None):
                 'description': q.description,
                 'options': q.options,
                 'correct_option': q.correct_option,
-                'marks_worth': q.marks_worth
+                'marks_worth': q.marks_worth,
+                'image_url': q.image_url
             }
             for q in questions
         ],
