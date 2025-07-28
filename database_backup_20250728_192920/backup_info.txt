@@ -1,0 +1,26 @@
+Nura AI Database Backup
+Created: Mon Jul 28 07:29:23 PM UTC 2025
+Database: PostgreSQL
+Backup Type: CSV Export + Schema
+Tables Exported: 12
+
+Files included:
+- users.csv (User accounts and authentication)
+- subjects.csv (Learning subjects)
+- topics.csv (Subject topics)
+- question_sets.csv (Quiz question sets)
+- questions.csv (Quiz questions with images)
+- quizzes.csv (Quiz sessions)
+- quiz_responses.csv (Student responses)
+- students.csv (Learner profiles)
+- teachers.csv (Educator profiles)
+- admins.csv (Administrator accounts)
+- performance_trends.csv (Learning analytics)
+- adaptive_quiz_sessions.csv (Adaptive learning sessions)
+- schema_info.txt (Database structure)
+- table_stats.txt (Table statistics)
+
+To restore:
+1. Create new PostgreSQL database
+2. Run the database migration to create tables
+3. Import CSV files using COPY commands or import tools

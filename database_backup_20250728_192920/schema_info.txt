@@ -1,0 +1,29 @@
+                                                     List of relations
+ Schema |             Name              |   Type   |    Owner     | Persistence | Access method |    Size    | Description 
+--------+-------------------------------+----------+--------------+-------------+---------------+------------+-------------
+ public | adaptive_quiz_sessions        | table    | neondb_owner | permanent   | heap          | 16 kB      | 
+ public | adaptive_quiz_sessions_id_seq | sequence | neondb_owner | permanent   |               | 8192 bytes | 
+ public | admins                        | table    | neondb_owner | permanent   | heap          | 16 kB      | 
+ public | admins_id_seq                 | sequence | neondb_owner | permanent   |               | 8192 bytes | 
+ public | performance_trends            | table    | neondb_owner | permanent   | heap          | 16 kB      | 
+ public | performance_trends_id_seq     | sequence | neondb_owner | permanent   |               | 8192 bytes | 
+ public | question_sets                 | table    | neondb_owner | permanent   | heap          | 48 kB      | 
+ public | question_sets_id_seq          | sequence | neondb_owner | permanent   |               | 8192 bytes | 
+ public | questions                     | table    | neondb_owner | permanent   | heap          | 32 kB      | 
+ public | questions_id_seq              | sequence | neondb_owner | permanent   |               | 8192 bytes | 
+ public | quiz_responses                | table    | neondb_owner | permanent   | heap          | 32 kB      | 
+ public | quiz_responses_id_seq         | sequence | neondb_owner | permanent   |               | 8192 bytes | 
+ public | quizzes                       | table    | neondb_owner | permanent   | heap          | 24 kB      | 
+ public | quizzes_id_seq                | sequence | neondb_owner | permanent   |               | 8192 bytes | 
+ public | students                      | table    | neondb_owner | permanent   | heap          | 16 kB      | 
+ public | students_id_seq               | sequence | neondb_owner | permanent   |               | 8192 bytes | 
+ public | subjects                      | table    | neondb_owner | permanent   | heap          | 16 kB      | 
+ public | subjects_id_seq               | sequence | neondb_owner | permanent   |               | 8192 bytes | 
+ public | teachers                      | table    | neondb_owner | permanent   | heap          | 16 kB      | 
+ public | teachers_id_seq               | sequence | neondb_owner | permanent   |               | 8192 bytes | 
+ public | topics                        | table    | neondb_owner | permanent   | heap          | 8192 bytes | 
+ public | topics_id_seq                 | sequence | neondb_owner | permanent   |               | 8192 bytes | 
+ public | users                         | table    | neondb_owner | permanent   | heap          | 16 kB      | 
+ public | users_id_seq                  | sequence | neondb_owner | permanent   |               | 8192 bytes | 
+(24 rows)
+
