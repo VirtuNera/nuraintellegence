@@ -104,6 +104,7 @@ class Question(db.Model):
     correct_option = db.Column(db.String(10), nullable=False)
     marks_worth = db.Column(db.Integer, default=1)
     explanation = db.Column(db.Text)
+    image_url = db.Column(db.String(255))
 
 class Quiz(db.Model):
     __tablename__ = 'quizzes'
