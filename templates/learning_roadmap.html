@@ -106,7 +106,7 @@
                                         {% endif %}
                                         {% if topic.status in ['current', 'unlocked'] %}
                                         <div class="mt-2">
-                                            <a href="{{ url_for('level_selection', topic_id=topic.topic_id) }}" 
+                                            <a href="{{ url_for('start_quiz', topic_id=topic.topic_id) }}" 
                                                class="btn btn-sm btn-outline-primary">
                                                 Start
                                             </a>

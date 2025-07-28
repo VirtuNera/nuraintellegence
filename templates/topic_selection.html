@@ -48,20 +48,7 @@
                             </div>
                         </div>
                         
-                        <!-- Level-wise progress -->
-                        <div class="row g-1 mb-3">
-                            {% for level in ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard'] %}
-                            {% set level_progress = topic_progress[topic.topic_id].levels.get(level, 0) %}
-                            <div class="col">
-                                <div class="text-center">
-                                    <div class="progress-circle-small mb-1" style="--progress: {{ level_progress }}%">
-                                        <span class="progress-text">{{ level_progress }}%</span>
-                                    </div>
-                                    <small class="text-muted d-block">{{ level }}</small>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
+
                     </div>
                     {% endif %}
                     
@@ -75,7 +62,7 @@
                     
                     <!-- Action Buttons -->
                     <div class="d-grid gap-2">
-                        <a href="{{ url_for('level_selection', topic_id=topic.topic_id) }}" 
+                        <a href="{{ url_for('start_quiz', topic_id=topic.topic_id) }}" 
                            class="btn btn-primary">
                             <i class="fas fa-play me-2"></i>
                             Start Quiz
