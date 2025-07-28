@@ -117,6 +117,7 @@ The application can be deployed on various platforms (Heroku, AWS, Google Cloud)
   - Light background: #d9e9ee (light blue-gray)
   - Dark accent: #081c43 (dark navy blue)
   - Updated CSS variables and gradients to match virtu Nera logo palette
+  - Ensured all text on dark backgrounds (primary, secondary, gradients) displays in white for optimal readability
 
 - July 26, 2025: **Major Performance Optimization & Code Cleanup** - Complete restructuring and optimization:
   - Reorganized project structure with `backend/` and `scripts/` directories
