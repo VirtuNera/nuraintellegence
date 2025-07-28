@@ -110,6 +110,14 @@ The application can be deployed on various platforms (Heroku, AWS, Google Cloud)
 
 ## Recent Changes
 
+- July 28, 2025: **Updated Color Scheme to virtu Nera Branding** - Applied new brand colors throughout the application:
+  - Primary color: #061c45 (deep navy blue)
+  - Secondary color: #2b3543 (dark blue-gray)
+  - Success/info color: #728190 (medium gray-blue)
+  - Light background: #d9e9ee (light blue-gray)
+  - Dark accent: #081c43 (dark navy blue)
+  - Updated CSS variables and gradients to match virtu Nera logo palette
+
 - July 26, 2025: **Major Performance Optimization & Code Cleanup** - Complete restructuring and optimization:
   - Reorganized project structure with `backend/` and `scripts/` directories
   - Consolidated 3 duplicate quiz engines into unified `backend/unified_quiz_engine.py`
