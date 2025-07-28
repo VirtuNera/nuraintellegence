@@ -1,21 +1,21 @@
 /* Nura AI Custom Styles */
 
 :root {
-    --nura-primary: #4f46e5;
-    --nura-secondary: #7c3aed;
-    --nura-success: #10b981;
+    --nura-primary: #061c45;
+    --nura-secondary: #2b3543;
+    --nura-success: #728190;
     --nura-warning: #f59e0b;
     --nura-danger: #ef4444;
-    --nura-info: #06b6d4;
-    --nura-light: #f8fafc;
-    --nura-dark: #1e293b;
-    --nura-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    --nura-info: #728190;
+    --nura-light: #d9e9ee;
+    --nura-dark: #081c43;
+    --nura-gradient: linear-gradient(135deg, #061c45 0%, #2b3543 100%);
 }
 
 /* Global Styles */
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #f8fafc;
+    background-color: var(--nura-light);
     color: #334155;
     line-height: 1.6;
 }
