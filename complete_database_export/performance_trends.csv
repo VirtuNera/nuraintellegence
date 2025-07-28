@@ -1,0 +1,4 @@
+id,trend_id,student_id,topic_id,proficiency_score,trend_graph_data,last_updated
+6,9eddcb00-51c2-4a14-a0d7-92a77301efa3,aa377081-f285-4349-a17a-43dc8c693c7a,automotive-hazmat-001,100,"""[100.0]""",2025-07-28 15:42:13.275548
+7,0d6fbb1a-d207-4da9-b8b8-211e63e7be4d,aa377081-f285-4349-a17a-43dc8c693c7a,automotive-body-001,60,"""[60.0]""",2025-07-28 17:15:41.337455
+8,1e6a05e4-b07d-4315-92aa-4bb22c8b1021,aa377081-f285-4349-a17a-43dc8c693c7a,automotive-maintenance-001,80,"""[80.0]""",2025-07-28 17:17:35.081012

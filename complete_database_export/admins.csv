@@ -1,0 +1,2 @@
+id,admin_id,user_id,department,permissions,last_login
+1,309b6b22-35ec-40dc-8aae-ba7472adfb0b,2,System Administration,"[""full_access"", ""user_management"", ""system_monitoring"", ""data_export""]",
