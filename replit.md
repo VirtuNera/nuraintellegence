@@ -118,6 +118,8 @@ The application can be deployed on various platforms (Heroku, AWS, Google Cloud)
   - Dark accent: #081c43 (dark navy blue)
   - Updated CSS variables and gradients to match virtu Nera logo palette
   - Ensured all text on dark backgrounds (primary, secondary, gradients) displays in white for optimal readability
+  - Removed graduation cap icon from landing page hero section
+  - Updated terminology to use "Learner or Educator" instead of "student or teacher" in sign-up description
 
 - July 26, 2025: **Major Performance Optimization & Code Cleanup** - Complete restructuring and optimization:
   - Reorganized project structure with `backend/` and `scripts/` directories
