@@ -110,6 +110,13 @@ The application can be deployed on various platforms (Heroku, AWS, Google Cloud)
 
 ## Recent Changes
 
+- July 28, 2025: **Added Automotive Quiz Images** - Enhanced automotive quiz experience with visual learning materials:
+  - Added 3 new automotive sub-topics: Engine (3 questions), Hazardous Materials (4 questions), and Maintenance (5 questions)
+  - Integrated labeled car engine diagrams for Engine quiz showing cylinder head, fuel pump, and crankshaft identification
+  - Added real-world hazardous materials images: fuel pump display, car battery, coolant containers, and used oil disposal
+  - All automotive questions now include proper visual context for enhanced learning experience
+  - Total automotive content: 4 topics (Body, Engine, Hazardous Materials, Maintenance) with 17 questions
+
 - July 28, 2025: **Updated Color Scheme to virtu Nera Branding** - Applied new brand colors throughout the application:
   - Primary color: #061c45 (deep navy blue)
   - Secondary color: #2b3543 (dark blue-gray)
