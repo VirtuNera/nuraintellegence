@@ -1,5 +1,0 @@
-id,question_set_id,topic_id,subject_id,difficulty_level,question_ids,min_questions,max_questions,success_threshold,created_at,total_marks
-41,qs-automotive-body-001,automotive-body-001,550e8400-e29b-41d4-a716-446655440000,easy,,5,10,70,,5
-42,qs-automotive-engine-001,automotive-engine-001,550e8400-e29b-41d4-a716-446655440000,easy,,3,5,70,,3
-43,qs-automotive-hazmat-001,automotive-hazmat-001,550e8400-e29b-41d4-a716-446655440000,medium,,4,6,70,,4
-44,qs-automotive-maintenance-001,automotive-maintenance-001,550e8400-e29b-41d4-a716-446655440000,easy,,5,8,70,,5

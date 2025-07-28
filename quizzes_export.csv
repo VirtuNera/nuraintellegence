@@ -1,4 +1,0 @@
-id,quiz_id,student_id,topic_id,question_set_id,score,total_marks,date_taken,time_taken
-60,74b69f05-ecbf-4867-b8ee-f0214db0ee4b,aa377081-f285-4349-a17a-43dc8c693c7a,automotive-hazmat-001,qs-automotive-hazmat-001,100,4,2025-07-28 15:42:13.124611,
-61,a6d2e7a0-bc48-45fa-a274-23f41fd1016d,aa377081-f285-4349-a17a-43dc8c693c7a,automotive-body-001,qs-automotive-body-001,60,5,2025-07-28 17:15:41.193201,
-62,6397421d-0798-4285-9bef-6f9f91b4b3e6,aa377081-f285-4349-a17a-43dc8c693c7a,automotive-maintenance-001,qs-automotive-maintenance-001,80,5,2025-07-28 17:17:34.940161,
