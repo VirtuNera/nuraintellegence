@@ -1,0 +1,5 @@
+id,topic_id,subject_id,name,difficulty_level
+35,automotive-body-001,550e8400-e29b-41d4-a716-446655440000,Body,easy
+36,automotive-engine-001,550e8400-e29b-41d4-a716-446655440000,Engine,easy
+37,automotive-hazmat-001,550e8400-e29b-41d4-a716-446655440000,Hazardous Materials,medium
+38,automotive-maintenance-001,550e8400-e29b-41d4-a716-446655440000,Maintenance,easy
