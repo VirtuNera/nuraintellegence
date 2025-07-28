@@ -860,7 +860,7 @@ def topic_selection(subject_id):
         
         topics = Topic.query.filter_by(subject_id=subject_id).all()
         
-        # Calculate topic progress
+        # Calculate topic progress (simplified - no level tracking)
         topic_progress = {}
         for topic in topics:
             # Get all quizzes for this topic
@@ -875,30 +875,10 @@ def topic_selection(subject_id):
                 total_possible = sum(quiz.total_marks for quiz in quizzes)
                 overall_progress = round((total_score / total_possible) * 100, 1) if total_possible > 0 else 0
                 
-                # Calculate level-wise progress
-                level_progress = {}
-                for level in ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard']:
-                    level_quizzes = []
-                    for q in quizzes:
-                        try:
-                            # Get the question set for this quiz
-                            question_set = QuestionSet.query.filter_by(question_set_id=q.question_set_id).first()
-                            if question_set and question_set.difficulty_level == level:
-                                level_quizzes.append(q)
-                        except Exception as e:
-                            # Skip this quiz if there's an issue with the question set
-                            continue
-                    
-                    if level_quizzes:
-                        level_score = sum(q.score for q in level_quizzes)
-                        level_possible = sum(q.total_marks for q in level_quizzes)
-                        level_progress[level] = round((level_score / level_possible) * 100, 1) if level_possible > 0 else 0
-                    else:
-                        level_progress[level] = 0
-                
                 topic_progress[topic.topic_id] = {
                     'overall': overall_progress,
-                    'levels': level_progress
+                    'attempts': len(quizzes),
+                    'best_score': round(max(quiz.score for quiz in quizzes), 1) if quizzes else 0
                 }
         
         return render_template('topic_selection.html', 
@@ -914,95 +894,7 @@ def topic_selection(subject_id):
         flash('Unable to load topics', 'error')
         return redirect(url_for('subject_selection'))
 
-@app.route('/level_selection/<topic_id>')
-@login_required
-def level_selection(topic_id):
-    """Level selection page for a specific topic"""
-    if current_user.role != 'student':
-        return redirect(url_for('landing'))
-    
-    try:
-        # Get learner data
-        learner = Student.query.filter_by(user_id=current_user.id).first()
-        if not learner:
-            flash('Student profile not found', 'error')
-            return redirect(url_for('learner_dashboard'))
-        
-        # Get topic
-        topic = Topic.query.filter_by(topic_id=topic_id).first()
-        if not topic:
-            flash('Topic not found', 'error')
-            return redirect(url_for('subject_selection'))
-        
-        # Get question sets for this topic grouped by difficulty
-        question_sets = QuestionSet.query.filter_by(topic_id=topic_id).all()
-        
-        # Group by difficulty level
-        difficulty_levels = ['Very Easy', 'Easy', 'Medium', 'Hard', 'Very Hard']
-        levels = []
-        
-        for level in difficulty_levels:
-            level_sets = [qs for qs in question_sets if qs.difficulty_level == level]
-            if level_sets:
-                # Calculate progress for this level
-                level_quizzes = Quiz.query.filter_by(
-                    student_id=learner.student_id,
-                    topic_id=topic_id
-                ).join(QuestionSet).filter(QuestionSet.difficulty_level == level).all()
-                
-                progress = None
-                if level_quizzes:
-                    total_score = sum(quiz.score for quiz in level_quizzes)
-                    total_possible = sum(quiz.total_marks for quiz in level_quizzes)
-                    completion_rate = round((total_score / total_possible) * 100, 1) if total_possible > 0 else 0
-                    best_score = max(quiz.score / quiz.total_marks * 100 for quiz in level_quizzes) if level_quizzes else 0
-                    
-                    progress = {
-                        'completion_rate': completion_rate,
-                        'best_score': round(best_score, 1),
-                        'attempts': len(level_quizzes)
-                    }
-                
-                # Simple unlock logic - unlock if previous level has >60% completion or it's the first level
-                is_locked = False
-                if level != 'Very Easy':
-                    prev_level_index = difficulty_levels.index(level) - 1
-                    if prev_level_index >= 0:
-                        prev_level = difficulty_levels[prev_level_index]
-                        prev_quizzes = Quiz.query.filter_by(
-                            student_id=learner.student_id,
-                            topic_id=topic_id
-                        ).join(QuestionSet).filter(QuestionSet.difficulty_level == prev_level).all()
-                        
-                        if not prev_quizzes:
-                            is_locked = True
-                        else:
-                            prev_score = sum(quiz.score for quiz in prev_quizzes)
-                            prev_possible = sum(quiz.total_marks for quiz in prev_quizzes)
-                            prev_completion = (prev_score / prev_possible) * 100 if prev_possible > 0 else 0
-                            if prev_completion < 60:
-                                is_locked = True
-                
-                # Calculate actual question count from database
-                question_count = 0
-                for qs in level_sets:
-                    count = Question.query.filter_by(set_id=qs.question_set_id).count()
-                    question_count += count
-                
-                levels.append({
-                    'name': level,
-                    'question_count': question_count,
-                    'progress': progress,
-                    'is_locked': is_locked
-                })
-        
-        return render_template('level_selection.html', 
-                             topic=topic, 
-                             levels=levels)
-        
-    except Exception as e:
-        flash('Unable to load levels', 'error')
-        return redirect(url_for('subject_selection'))
+
 
 @app.route('/learning_roadmap')
 @login_required
