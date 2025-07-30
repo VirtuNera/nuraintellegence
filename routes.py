@@ -1,6 +1,7 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify, session
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from app import app, db
 from backend.models import User, Student, Teacher, Admin, Subject, Topic, Quiz, QuizResponse, PerformanceTrend, QuestionSet, Question, AdaptiveQuizSession
 from backend.ai_service import NuraAI
@@ -12,6 +13,7 @@ from backend.performance_cache import cache
 from backend.topic_prediction_service import topic_prediction_service
 import json
 import uuid
+import os
 from datetime import datetime, timedelta
 
 # Initialize AI service and quiz engines
@@ -170,12 +172,12 @@ def educator_dashboard():
     class_data = get_class_overview_data()
     
     # Get learners performance for traffic light system
-    learners_performance = get_learners_traffic_light_data()
+    students_performance = get_learners_traffic_light_data()
     
     return render_template('educator_dashboard.html',
                          educator=educator,
                          class_data=class_data,
-                         learners_performance=learners_performance)
+                         students_performance=students_performance)
 
 @app.route('/admin/dashboard')
 @login_required
@@ -1189,3 +1191,180 @@ def api_quiz_details(quiz_id):
         
     except Exception as e:
         return jsonify({'success': False, 'error': 'Failed to load quiz details'}), 500
+
+# Configuration for file uploads
+UPLOAD_FOLDER = 'static/images/quiz/educator_uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+MAX_FILE_SIZE = 2 * 1024 * 1024  # 2MB
+
+def allowed_file(filename):
+    """Check if file extension is allowed"""
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_uploaded_file(file, prefix=""):
+    """Save uploaded file and return the relative path"""
+    if not file or not allowed_file(file.filename):
+        return None
+    
+    # Create unique filename
+    filename = secure_filename(file.filename)
+    unique_filename = f"{prefix}_{uuid.uuid4().hex}_{filename}"
+    filepath = os.path.join(UPLOAD_FOLDER, unique_filename)
+    
+    # Ensure directory exists
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    
+    # Save file
+    file.save(filepath)
+    
+    # Return relative path for web access
+    return f"/static/images/quiz/educator_uploads/{unique_filename}"
+
+@app.route('/api/create-content', methods=['POST'])
+@login_required
+def create_content():
+    """API endpoint to create new educational content"""
+    if current_user.role != 'teacher':
+        return jsonify({'success': False, 'message': 'Access denied'}), 403
+    
+    try:
+        # Get form data
+        topic_name = request.form.get('topicName')
+        topic_description = request.form.get('topicDescription', '')
+        subtopics_json = request.form.get('subTopics')
+        
+        if not topic_name or not subtopics_json:
+            return jsonify({'success': False, 'message': 'Missing required fields'}), 400
+        
+        subtopics_data = json.loads(subtopics_json)
+        
+        # Create or get subject (for now, create a default "Custom" subject or use the first available)
+        subject = Subject.query.first()
+        if not subject:
+            subject = Subject(
+                name="Custom Topics",
+                description="Educator-created custom topics"
+            )
+            db.session.add(subject)
+            db.session.flush()
+        
+        # Create topic
+        topic = Topic(
+            subject_id=subject.subject_id,
+            name=topic_name,
+            difficulty_level='medium'  # Default difficulty
+        )
+        db.session.add(topic)
+        db.session.flush()
+        
+        # Process each sub-topic
+        for subtopic_index, subtopic_data in enumerate(subtopics_data):
+            if not subtopic_data.get('name') or not subtopic_data.get('questions'):
+                continue
+                
+            # Create question set for this sub-topic
+            question_set = QuestionSet(
+                topic_id=topic.topic_id,
+                subject_id=subject.subject_id,
+                difficulty_level=subtopic_data.get('difficulty', 'medium'),
+                min_questions=len(subtopic_data['questions']),
+                max_questions=len(subtopic_data['questions']),
+                success_threshold=80.0
+            )
+            db.session.add(question_set)
+            db.session.flush()
+            
+            question_ids = []
+            
+            # Process each question
+            for question_index, question_data in enumerate(subtopic_data['questions']):
+                if not question_data.get('text'):
+                    continue
+                    
+                # Handle image upload if present
+                image_url = None
+                if question_data.get('hasImage') and question_data.get('imageKey'):
+                    image_file = request.files.get(question_data['imageKey'])
+                    if image_file:
+                        image_url = save_uploaded_file(
+                            image_file, 
+                            f"{topic_name}_{subtopic_data['name']}_q{question_index}"
+                        )
+                
+                # Create question
+                question = Question(
+                    set_id=question_set.question_set_id,
+                    description=question_data['text'],
+                    options=[
+                        question_data['optionA'],
+                        question_data['optionB'], 
+                        question_data['optionC'],
+                        question_data['optionD']
+                    ],
+                    correct_option=question_data['correctAnswer'],
+                    explanation=question_data.get('explanation', ''),
+                    image_url=image_url,
+                    marks_worth=1
+                )
+                db.session.add(question)
+                db.session.flush()
+                
+                question_ids.append(question.question_id)
+            
+            # Update question set with question IDs
+            question_set.question_ids = question_ids
+            question_set.total_marks = len(question_ids)
+        
+        # Commit all changes
+        db.session.commit()
+        
+        return jsonify({
+            'success': True, 
+            'message': f'Content created successfully! Topic "{topic_name}" with {len(subtopics_data)} sub-topics.',
+            'topic_id': topic.topic_id
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Error creating content: {str(e)}")
+        return jsonify({'success': False, 'message': f'Error creating content: {str(e)}'}), 500
+
+@app.route('/api/content-library')
+@login_required
+def content_library():
+    """API endpoint to get educator's content library"""
+    if current_user.role != 'teacher':
+        return jsonify({'error': 'Access denied'}), 403
+    
+    try:
+        # Get all topics with their question counts
+        topics_data = []
+        topics = Topic.query.join(Subject).all()
+        
+        for topic in topics:
+            # Count sub-topics (question sets)
+            subtopics_count = QuestionSet.query.filter_by(topic_id=topic.topic_id).count()
+            
+            # Count total questions
+            questions_count = db.session.query(Question).join(QuestionSet).filter(
+                QuestionSet.topic_id == topic.topic_id
+            ).count()
+            
+            topics_data.append({
+                'id': topic.topic_id,
+                'name': topic.name,
+                'subject': topic.subject.name,
+                'subtopics_count': subtopics_count,
+                'questions_count': questions_count,
+                'created_at': topic.id  # Using id as a proxy for creation order
+            })
+        
+        return jsonify({
+            'success': True,
+            'topics': topics_data
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Error loading content library: {str(e)}")
+        return jsonify({'error': f'Error loading content library: {str(e)}'}), 500
