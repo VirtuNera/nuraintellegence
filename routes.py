@@ -82,33 +82,30 @@ def signup():
             return render_template('signup.html')
         
         # Create user
-        user = User(
-            full_name=full_name,
-            email=email,
-            password_hash=generate_password_hash(password),
-            role=role
-        )
+        user = User()
+        user.full_name = full_name
+        user.email = email
+        user.password_hash = generate_password_hash(password)
+        user.role = role
         db.session.add(user)
         db.session.flush()  # Get the user ID
         
         # Create role-specific profile
         if role == 'student':
-            student = Student(
-                user_id=user.id,
-                grade_level=None,  # Remove grade level requirement
-                preferred_subjects=None  # Remove preferred subjects requirement
-            )
+            student = Student()
+            student.user_id = user.id
+            student.grade_level = None  # Remove grade level requirement
+            student.preferred_subjects = None  # Remove preferred subjects requirement
             db.session.add(student)
         
         elif role == 'teacher':
             school_name = request.form.get('school_name')
             subjects_taught = request.form.getlist('subjects_taught')
             
-            educator = Teacher(
-                user_id=user.id,
-                school_name=school_name,
-                subjects_taught=subjects_taught
-            )
+            educator = Teacher()
+            educator.user_id = user.id
+            educator.school_name = school_name
+            educator.subjects_taught = subjects_taught
             db.session.add(educator)
         
         db.session.commit()
