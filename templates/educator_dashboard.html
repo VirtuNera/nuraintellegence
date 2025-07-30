@@ -154,6 +154,48 @@
         </div>
     </div>
     
+    <!-- Content Management Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cogs me-2"></i>
+                        Manage Content
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="d-grid">
+                                <button class="btn btn-primary btn-lg" onclick="showCreateTopicModal()">
+                                    <i class="fas fa-plus-circle me-2"></i>
+                                    Create New Topic
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-grid">
+                                <button class="btn btn-success btn-lg" onclick="showManageContentModal()">
+                                    <i class="fas fa-edit me-2"></i>
+                                    Manage Existing Content
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-grid">
+                                <button class="btn btn-info btn-lg" onclick="showContentLibrary()">
+                                    <i class="fas fa-library me-2"></i>
+                                    Content Library
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Detailed Subject Statistics -->
     <div class="row">
         <div class="col-12">
@@ -205,6 +247,128 @@
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Topic Modal -->
+<div class="modal fade" id="createTopicModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Learning Content</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="contentCreationForm" enctype="multipart/form-data">
+                    <!-- Step 1: Topic -->
+                    <div id="step1" class="step-content">
+                        <h6 class="mb-3"><i class="fas fa-book me-2"></i>Step 1: Create Topic</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="topicName" class="form-label">Topic Name *</label>
+                                    <input type="text" class="form-control" id="topicName" name="topicName" 
+                                           placeholder="e.g., PC Hardware, Business Ethics" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="topicDescription" class="form-label">Topic Description</label>
+                                    <textarea class="form-control" id="topicDescription" name="topicDescription" 
+                                              rows="3" placeholder="Brief description of the topic"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-primary" onclick="nextStep(2)">
+                                Next: Add Sub-Topics <i class="fas fa-arrow-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Sub-Topics -->
+                    <div id="step2" class="step-content" style="display: none;">
+                        <h6 class="mb-3"><i class="fas fa-list me-2"></i>Step 2: Add Sub-Topics</h6>
+                        <div id="subTopicsContainer">
+                            <div class="subtopic-item border rounded p-3 mb-3">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Sub-Topic Name *</label>
+                                            <input type="text" class="form-control subtopic-name" 
+                                                   placeholder="e.g., Storage Devices, Motherboard Components" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Difficulty Level</label>
+                                            <select class="form-select subtopic-difficulty">
+                                                <option value="easy">Easy</option>
+                                                <option value="medium" selected>Medium</option>
+                                                <option value="hard">Hard</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">&nbsp;</label>
+                                            <button type="button" class="btn btn-outline-danger d-block" 
+                                                    onclick="removeSubTopic(this)" style="display: none;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-outline-primary" onclick="addSubTopic()">
+                                <i class="fas fa-plus me-1"></i> Add Another Sub-Topic
+                            </button>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep(1)">
+                                <i class="fas fa-arrow-left me-1"></i> Back
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep(3)">
+                                Next: Add Quiz Questions <i class="fas fa-arrow-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Quiz Questions -->
+                    <div id="step3" class="step-content" style="display: none;">
+                        <h6 class="mb-3"><i class="fas fa-question-circle me-2"></i>Step 3: Add Quiz Questions</h6>
+                        <div id="questionsContainer">
+                            <!-- Questions will be dynamically added here -->
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep(2)">
+                                <i class="fas fa-arrow-left me-1"></i> Back
+                            </button>
+                            <button type="button" class="btn btn-success" onclick="submitContent()">
+                                <i class="fas fa-save me-1"></i> Create Content
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content Library Modal -->
+<div class="modal fade" id="contentLibraryModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Content Library</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="contentLibraryContent">
+                <!-- Content library will be loaded here -->
             </div>
         </div>
     </div>
@@ -351,6 +515,357 @@ function viewLearnerDetails(studentId) {
 // Function to view subject details
 function viewSubjectDetails(subject) {
     alert(`Detailed view for ${subject} - Feature coming soon!`);
+}
+
+// Content Management Functions
+function showCreateTopicModal() {
+    const modal = new bootstrap.Modal(document.getElementById('createTopicModal'));
+    modal.show();
+}
+
+function showManageContentModal() {
+    alert('Manage Content feature coming soon!');
+}
+
+function showContentLibrary() {
+    loadContentLibrary();
+    const modal = new bootstrap.Modal(document.getElementById('contentLibraryModal'));
+    modal.show();
+}
+
+function nextStep(step) {
+    // Hide all steps
+    document.querySelectorAll('.step-content').forEach(s => s.style.display = 'none');
+    
+    if (step === 2) {
+        // Validate topic name
+        const topicName = document.getElementById('topicName').value.trim();
+        if (!topicName) {
+            alert('Please enter a topic name');
+            document.getElementById('step1').style.display = 'block';
+            return;
+        }
+    } else if (step === 3) {
+        // Generate question forms for each sub-topic
+        generateQuestionForms();
+    }
+    
+    // Show target step
+    document.getElementById(`step${step}`).style.display = 'block';
+}
+
+function prevStep(step) {
+    document.querySelectorAll('.step-content').forEach(s => s.style.display = 'none');
+    document.getElementById(`step${step}`).style.display = 'block';
+}
+
+function addSubTopic() {
+    const container = document.getElementById('subTopicsContainer');
+    const newItem = container.querySelector('.subtopic-item').cloneNode(true);
+    
+    // Clear values and show remove button
+    newItem.querySelector('.subtopic-name').value = '';
+    newItem.querySelector('.btn-outline-danger').style.display = 'block';
+    
+    container.appendChild(newItem);
+}
+
+function removeSubTopic(button) {
+    button.closest('.subtopic-item').remove();
+}
+
+function generateQuestionForms() {
+    const container = document.getElementById('questionsContainer');
+    container.innerHTML = '';
+    
+    const subTopics = document.querySelectorAll('.subtopic-name');
+    
+    subTopics.forEach((subTopic, index) => {
+        if (subTopic.value.trim()) {
+            const questionForm = createQuestionForm(subTopic.value.trim(), index);
+            container.appendChild(questionForm);
+        }
+    });
+}
+
+function createQuestionForm(subTopicName, index) {
+    const div = document.createElement('div');
+    div.className = 'card mb-4';
+    div.innerHTML = `
+        <div class="card-header">
+            <h6 class="mb-0"><i class="fas fa-clipboard-question me-2"></i>Questions for: ${subTopicName}</h6>
+        </div>
+        <div class="card-body">
+            <div class="questions-for-subtopic" data-subtopic="${subTopicName}" data-index="${index}">
+                ${createSingleQuestionForm(0, index)}
+            </div>
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addQuestion(${index})">
+                <i class="fas fa-plus me-1"></i> Add Another Question
+            </button>
+        </div>
+    `;
+    return div;
+}
+
+function createSingleQuestionForm(questionIndex, subTopicIndex) {
+    return `
+        <div class="question-item border rounded p-3 mb-3" data-question-index="${questionIndex}">
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group mb-3">
+                        <label class="form-label">Question Text *</label>
+                        <textarea class="form-control question-text" rows="3" 
+                                  placeholder="Enter your question here..." required></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label class="form-label">Option A *</label>
+                        <input type="text" class="form-control option-a" placeholder="Option A" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label class="form-label">Option B *</label>
+                        <input type="text" class="form-control option-b" placeholder="Option B" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label class="form-label">Option C *</label>
+                        <input type="text" class="form-control option-c" placeholder="Option C" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label class="form-label">Option D *</label>
+                        <input type="text" class="form-control option-d" placeholder="Option D" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group mb-3">
+                        <label class="form-label">Correct Answer *</label>
+                        <select class="form-select correct-answer" required>
+                            <option value="">Select...</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group mb-3">
+                        <label class="form-label">Difficulty</label>
+                        <select class="form-select question-difficulty">
+                            <option value="very-easy">Very Easy</option>
+                            <option value="easy" selected>Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                            <option value="very-hard">Very Hard</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label class="form-label">Image (Optional)</label>
+                        <input type="file" class="form-control question-image" 
+                               accept="image/png,image/jpg,image/jpeg" 
+                               onchange="validateImageFile(this)">
+                        <div class="form-text">PNG, JPG, JPEG. Max 2MB</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group mb-3">
+                        <label class="form-label">Explanation (Optional)</label>
+                        <textarea class="form-control question-explanation" rows="2" 
+                                  placeholder="Explain why this is the correct answer..."></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            ${questionIndex > 0 ? `
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeQuestion(this)">
+                        <i class="fas fa-trash me-1"></i> Remove Question
+                    </button>
+                </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+function validateImageFile(input) {
+    const file = input.files[0];
+    if (file) {
+        // Check file size (2MB = 2 * 1024 * 1024 bytes)
+        if (file.size > 2 * 1024 * 1024) {
+            alert('File size must be less than 2MB');
+            input.value = '';
+            return;
+        }
+        
+        // Check file type
+        const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Only PNG, JPG, and JPEG files are allowed');
+            input.value = '';
+            return;
+        }
+    }
+}
+
+function addQuestion(subTopicIndex) {
+    const container = document.querySelector(`[data-index="${subTopicIndex}"]`);
+    const questionCount = container.querySelectorAll('.question-item').length;
+    const newQuestion = document.createElement('div');
+    newQuestion.innerHTML = createSingleQuestionForm(questionCount, subTopicIndex);
+    container.appendChild(newQuestion.firstElementChild);
+}
+
+function removeQuestion(button) {
+    button.closest('.question-item').remove();
+}
+
+function loadContentLibrary() {
+    fetch('/api/content-library')
+        .then(response => response.json())
+        .then(data => {
+            const content = document.getElementById('contentLibraryContent');
+            content.innerHTML = `
+                <div class="row">
+                    <div class="col-12">
+                        <h6>Your Created Content</h6>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Topic</th>
+                                        <th>Sub-Topics</th>
+                                        <th>Questions</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.topics.map(topic => `
+                                        <tr>
+                                            <td><strong>${topic.name}</strong></td>
+                                            <td>${topic.subtopics_count}</td>
+                                            <td>${topic.questions_count}</td>
+                                            <td>${new Date(topic.created_at).toLocaleDateString()}</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary me-1" onclick="editTopic('${topic.id}')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="deleteTopic('${topic.id}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        })
+        .catch(error => {
+            console.error('Error loading content library:', error);
+            document.getElementById('contentLibraryContent').innerHTML = 
+                '<div class="alert alert-danger">Error loading content library</div>';
+        });
+}
+
+function submitContent() {
+    // Collect all form data
+    const formData = new FormData();
+    
+    // Topic data
+    formData.append('topicName', document.getElementById('topicName').value);
+    formData.append('topicDescription', document.getElementById('topicDescription').value);
+    
+    // Sub-topics and questions data
+    const subTopics = [];
+    document.querySelectorAll('.questions-for-subtopic').forEach((container, subTopicIndex) => {
+        const subTopicName = container.dataset.subtopic;
+        const subTopicData = {
+            name: subTopicName,
+            difficulty: document.querySelectorAll('.subtopic-difficulty')[subTopicIndex].value,
+            questions: []
+        };
+        
+        container.querySelectorAll('.question-item').forEach((questionItem, questionIndex) => {
+            const questionData = {
+                text: questionItem.querySelector('.question-text').value,
+                optionA: questionItem.querySelector('.option-a').value,
+                optionB: questionItem.querySelector('.option-b').value,
+                optionC: questionItem.querySelector('.option-c').value,
+                optionD: questionItem.querySelector('.option-d').value,
+                correctAnswer: questionItem.querySelector('.correct-answer').value,
+                difficulty: questionItem.querySelector('.question-difficulty').value,
+                explanation: questionItem.querySelector('.question-explanation').value
+            };
+            
+            // Handle image file
+            const imageFile = questionItem.querySelector('.question-image').files[0];
+            if (imageFile) {
+                formData.append(`image_${subTopicIndex}_${questionIndex}`, imageFile);
+                questionData.hasImage = true;
+                questionData.imageKey = `image_${subTopicIndex}_${questionIndex}`;
+            }
+            
+            subTopicData.questions.push(questionData);
+        });
+        
+        subTopics.push(subTopicData);
+    });
+    
+    formData.append('subTopics', JSON.stringify(subTopics));
+    
+    // Show loading state
+    const submitButton = document.querySelector('button[onclick="submitContent()"]');
+    const originalText = submitButton.innerHTML;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Creating...';
+    submitButton.disabled = true;
+    
+    // Submit to server
+    fetch('/api/create-content', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Content created successfully!');
+            bootstrap.Modal.getInstance(document.getElementById('createTopicModal')).hide();
+            location.reload(); // Refresh to show new content
+        } else {
+            alert('Error creating content: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error creating content. Please try again.');
+    })
+    .finally(() => {
+        // Reset button
+        submitButton.innerHTML = originalText;
+        submitButton.disabled = false;
+    });
 }
 </script>
 {% endblock %}
