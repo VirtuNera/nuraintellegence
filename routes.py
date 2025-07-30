@@ -94,8 +94,8 @@ def signup():
         if role == 'student':
             student = Student()
             student.user_id = user.id
-            student.grade_level = None  # Remove grade level requirement
-            student.preferred_subjects = None  # Remove preferred subjects requirement
+            student.grade_level = "Not specified"  # Provide default value
+            student.preferred_subjects = []  # Empty array instead of None
             db.session.add(student)
         
         elif role == 'teacher':
@@ -108,9 +108,15 @@ def signup():
             educator.subjects_taught = subjects_taught
             db.session.add(educator)
         
-        db.session.commit()
-        flash('Account created successfully! Please log in.', 'success')
-        return redirect(url_for('login'))
+        try:
+            db.session.commit()
+            flash('Account created successfully! Please log in.', 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error creating account: {str(e)}")
+            flash('An error occurred while creating your account. Please try again.', 'error')
+            return render_template('signup.html')
     
     return render_template('signup.html')
 
