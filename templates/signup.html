@@ -168,6 +168,25 @@
 {% endblock %}
 
 {% block scripts %}
+<style>
+/* Custom styling for role selection */
+.form-check-input[type="radio"]:checked + .form-check-label .p-3 {
+    border-color: #0d6efd !important;
+    border-width: 2px !important;
+    background-color: transparent !important;
+}
+
+.form-check-input[type="radio"] + .form-check-label .p-3 {
+    transition: border-color 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.form-check-input[type="radio"] + .form-check-label .p-3:hover {
+    border-color: #0d6efd;
+    border-width: 1px;
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const studentRadio = document.getElementById('student');
