@@ -10,7 +10,7 @@
             <div class="card bg-gradient-primary text-white">
                 <div class="card-body">
                     <h2 class="mb-2">Welcome, {{ educator.user.full_name }}!</h2>
-                    <p class="mb-0">Monitor your students' progress and provide targeted support.</p>
+                    <p class="mb-0">Monitor your learners' progress and provide targeted support.</p>
                 </div>
             </div>
         </div>
@@ -40,7 +40,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <i class="fas fa-school fa-3x text-info mb-3"></i>
-                    <h4>School</h4>
+                    <h4>Institute</h4>
                     <p class="mb-0">{{ educator.school_name or 'Not specified' }}</p>
                 </div>
             </div>
@@ -49,7 +49,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <i class="fas fa-book fa-3x text-warning mb-3"></i>
-                    <h4>Subjects</h4>
+                    <h4>Courses</h4>
                     <p class="mb-0">{{ educator.subjects_taught|length if educator.subjects_taught else 0 }}</p>
                 </div>
             </div>
@@ -139,7 +139,7 @@
                 <div class="card-body">
                     <div class="alert alert-warning" role="alert">
                         <i class="fas fa-bell me-2"></i>
-                        <strong>3 students</strong> need attention in Mathematics
+                        <strong>3 Learners</strong> need attention in Mathematics
                     </div>
                     <div class="alert alert-info" role="alert">
                         <i class="fas fa-info-circle me-2"></i>
@@ -147,7 +147,7 @@
                     </div>
                     <div class="alert alert-success" role="alert">
                         <i class="fas fa-trophy me-2"></i>
-                        <strong>5 students</strong> achieved excellent scores this week
+                        <strong>5 Learners</strong> achieved excellent scores this week
                     </div>
                 </div>
             </div>
@@ -211,7 +211,7 @@
                         <table class="table table-hover">
                             <thead class="table-dark">
                                 <tr>
-                                    <th>Subject</th>
+                                    <th>Course</th>
                                     <th>Average Score</th>
                                     <th>Total Quizzes</th>
                                     <th>Performance Trend</th>
@@ -262,41 +262,41 @@
             </div>
             <div class="modal-body">
                 <form id="contentCreationForm" enctype="multipart/form-data">
-                    <!-- Step 1: Topic -->
+                    <!-- Step 1: Subject -->
                     <div id="step1" class="step-content">
-                        <h6 class="mb-3"><i class="fas fa-book me-2"></i>Step 1: Create Topic</h6>
+                        <h6 class="mb-3"><i class="fas fa-book me-2"></i>Step 1: Create Subject</h6>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="topicName" class="form-label">Topic Name *</label>
+                                    <label for="topicName" class="form-label">Subject Name *</label>
                                     <input type="text" class="form-control" id="topicName" name="topicName" 
                                            placeholder="e.g., PC Hardware, Business Ethics" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="topicDescription" class="form-label">Topic Description</label>
+                                    <label for="topicDescription" class="form-label">Subject Description</label>
                                     <textarea class="form-control" id="topicDescription" name="topicDescription" 
-                                              rows="3" placeholder="Brief description of the topic"></textarea>
+                                              rows="3" placeholder="Brief description of the subject"></textarea>
                                 </div>
                             </div>
                         </div>
                         <div class="d-flex justify-content-end">
                             <button type="button" class="btn btn-primary" onclick="nextStep(2)">
-                                Next: Add Sub-Topics <i class="fas fa-arrow-right ms-1"></i>
+                                Next: Add Topics <i class="fas fa-arrow-right ms-1"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Step 2: Sub-Topics -->
+                    <!-- Step 2: Topics -->
                     <div id="step2" class="step-content" style="display: none;">
-                        <h6 class="mb-3"><i class="fas fa-list me-2"></i>Step 2: Add Sub-Topics</h6>
+                        <h6 class="mb-3"><i class="fas fa-list me-2"></i>Step 2: Add Topics</h6>
                         <div id="subTopicsContainer">
                             <div class="subtopic-item border rounded p-3 mb-3">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-3">
-                                            <label class="form-label">Sub-Topic Name *</label>
+                                            <label class="form-label">Topic Name *</label>
                                             <input type="text" class="form-control subtopic-name" 
                                                    placeholder="e.g., Storage Devices, Motherboard Components" required>
                                         </div>
@@ -325,7 +325,7 @@
                         </div>
                         <div class="mb-3">
                             <button type="button" class="btn btn-outline-primary" onclick="addSubTopic()">
-                                <i class="fas fa-plus me-1"></i> Add Another Sub-Topic
+                                <i class="fas fa-plus me-1"></i> Add Another Topic
                             </button>
                         </div>
                         <div class="d-flex justify-content-between">
@@ -538,15 +538,15 @@ function nextStep(step) {
     document.querySelectorAll('.step-content').forEach(s => s.style.display = 'none');
     
     if (step === 2) {
-        // Validate topic name
-        const topicName = document.getElementById('topicName').value.trim();
-        if (!topicName) {
-            alert('Please enter a topic name');
+        // Validate subject name
+        const subjectName = document.getElementById('topicName').value.trim();
+        if (!subjectName) {
+            alert('Please enter a subject name');
             document.getElementById('step1').style.display = 'block';
             return;
         }
     } else if (step === 3) {
-        // Generate question forms for each sub-topic
+        // Generate question forms for each topic
         generateQuestionForms();
     }
     
@@ -752,25 +752,25 @@ function loadContentLibrary() {
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Topic</th>
-                                        <th>Sub-Topics</th>
+                                        <th>Subject</th>
+                                        <th>Topics</th>
                                         <th>Questions</th>
                                         <th>Created</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${data.topics.map(topic => `
+                                    ${data.subjects.map(subject => `
                                         <tr>
-                                            <td><strong>${topic.name}</strong></td>
-                                            <td>${topic.subtopics_count}</td>
-                                            <td>${topic.questions_count}</td>
-                                            <td>${new Date(topic.created_at).toLocaleDateString()}</td>
+                                            <td><strong>${subject.name}</strong></td>
+                                            <td>${subject.topics_count}</td>
+                                            <td>${subject.questions_count}</td>
+                                            <td>${new Date(subject.created_at).toLocaleDateString()}</td>
                                             <td>
-                                                <button class="btn btn-sm btn-outline-primary me-1" onclick="editTopic('${topic.id}')">
+                                                <button class="btn btn-sm btn-outline-primary me-1" onclick="editSubject('${subject.id}')">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="btn btn-sm btn-outline-danger" onclick="deleteTopic('${topic.id}')">
+                                                <button class="btn btn-sm btn-outline-danger" onclick="deleteSubject('${subject.id}')">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </td>
@@ -794,16 +794,16 @@ function submitContent() {
     // Collect all form data
     const formData = new FormData();
     
-    // Topic data
+    // Subject data
     formData.append('topicName', document.getElementById('topicName').value);
     formData.append('topicDescription', document.getElementById('topicDescription').value);
     
-    // Sub-topics and questions data
+    // Topics and questions data
     const subTopics = [];
     document.querySelectorAll('.questions-for-subtopic').forEach((container, subTopicIndex) => {
-        const subTopicName = container.dataset.subtopic;
-        const subTopicData = {
-            name: subTopicName,
+        const topicName = container.dataset.subtopic;
+        const topicData = {
+            name: topicName,
             difficulty: document.querySelectorAll('.subtopic-difficulty')[subTopicIndex].value,
             questions: []
         };
@@ -828,13 +828,13 @@ function submitContent() {
                 questionData.imageKey = `image_${subTopicIndex}_${questionIndex}`;
             }
             
-            subTopicData.questions.push(questionData);
+                        topicData.questions.push(questionData);
         });
         
-        subTopics.push(subTopicData);
-    });
-    
-    formData.append('subTopics', JSON.stringify(subTopics));
+        subTopics.push(topicData);
+        });
+        
+        formData.append('subTopics', JSON.stringify(subTopics));
     
     // Show loading state
     const submitButton = document.querySelector('button[onclick="submitContent()"]');
