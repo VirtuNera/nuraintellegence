@@ -632,18 +632,18 @@ function editTopic(topicId) {
     if (!topic) return;
     document.getElementById('editTopicId').value = topic.id;
     document.getElementById('editTopicName').value = topic.name || '';
-    document.getElementById('editTopicDifficulty').value = topic.difficulty || 'medium';
+    document.getElementById('editTopicDifficulty').value = topic.difficulty_level || 'medium';
     const modal = new bootstrap.Modal(document.getElementById('editTopicModal'));
     modal.show();
 }
 function submitEditTopic() {
     const id = document.getElementById('editTopicId').value;
     const name = document.getElementById('editTopicName').value;
-    const difficulty = document.getElementById('editTopicDifficulty').value;
+    const difficulty_level = document.getElementById('editTopicDifficulty').value;
     fetch(`/api/topic/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, difficulty })
+        body: JSON.stringify({ name, difficulty_level })
     })
     .then(res => res.json())
     .then(data => {
@@ -663,31 +663,32 @@ function editQuestion(questionId) {
     const question = findQuestionById(questionId);
     if (!question) return;
     document.getElementById('editQuestionId').value = question.id;
-    document.getElementById('editQuestionText').value = question.text || '';
-    document.getElementById('editOptionA').value = question.optionA || '';
-    document.getElementById('editOptionB').value = question.optionB || '';
-    document.getElementById('editOptionC').value = question.optionC || '';
-    document.getElementById('editOptionD').value = question.optionD || '';
-    document.getElementById('editCorrectAnswer').value = question.correctAnswer || 'A';
-    document.getElementById('editQuestionDifficulty').value = question.difficulty || 'easy';
+    document.getElementById('editQuestionText').value = question.description || '';
+    // Handle options array - assume options[0] = A, options[1] = B, etc.
+    const options = question.options || [];
+    document.getElementById('editOptionA').value = options[0] || '';
+    document.getElementById('editOptionB').value = options[1] || '';
+    document.getElementById('editOptionC').value = options[2] || '';
+    document.getElementById('editOptionD').value = options[3] || '';
+    document.getElementById('editCorrectAnswer').value = question.correct_option || 'A';
     document.getElementById('editQuestionExplanation').value = question.explanation || '';
     const modal = new bootstrap.Modal(document.getElementById('editQuestionModal'));
     modal.show();
 }
 function submitEditQuestion() {
     const id = document.getElementById('editQuestionId').value;
-    const text = document.getElementById('editQuestionText').value;
+    const description = document.getElementById('editQuestionText').value;
     const optionA = document.getElementById('editOptionA').value;
     const optionB = document.getElementById('editOptionB').value;
     const optionC = document.getElementById('editOptionC').value;
     const optionD = document.getElementById('editOptionD').value;
-    const correctAnswer = document.getElementById('editCorrectAnswer').value;
-    const difficulty = document.getElementById('editQuestionDifficulty').value;
+    const options = [optionA, optionB, optionC, optionD];
+    const correct_option = document.getElementById('editCorrectAnswer').value;
     const explanation = document.getElementById('editQuestionExplanation').value;
     fetch(`/api/question/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, optionA, optionB, optionC, optionD, correctAnswer, difficulty, explanation })
+        body: JSON.stringify({ description, options, correct_option, explanation })
     })
     .then(res => res.json())
     .then(data => {
@@ -765,7 +766,7 @@ function renderManageContentNested(subjects) {
                                                         <ul class="list-group">
                                                             ${topic.questions.map(q => `
                                                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                    <span>${q.text}</span>
+                                                                    <span>${q.description}</span>
                                                                     <span>
                                                                         <button class="btn btn-sm btn-outline-primary me-1" onclick="editQuestion('${q.id}')"><i class="fas fa-edit"></i></button>
                                                                         <button class="btn btn-sm btn-outline-danger" onclick="deleteQuestion('${q.id}')"><i class="fas fa-trash"></i></button>

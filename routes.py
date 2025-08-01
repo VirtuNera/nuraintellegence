@@ -1469,3 +1469,183 @@ def content_library():
         app.logger.error(f"Error loading content library: {str(e)}")
         return jsonify({'error':
                         f'Error loading content library: {str(e)}'}), 500
+
+
+@app.route('/api/manage-content')
+@login_required
+def manage_content():
+    """API endpoint to get all subjects, topics, and questions in nested structure"""
+    if current_user.role != 'teacher':
+        return jsonify({'error': 'Access denied'}), 403
+
+    try:
+        subjects_data = []
+        subjects = Subject.query.all()
+
+        for subject in subjects:
+            # Get all topics for this subject
+            topics = Topic.query.filter_by(subject_id=subject.subject_id).all()
+            topics_data = []
+
+            for topic in topics:
+                # Get question set for this topic
+                question_set = QuestionSet.query.filter_by(topic_id=topic.topic_id).first()
+                questions_data = []
+
+                if question_set and question_set.question_ids:
+                    # Get all questions for this topic
+                    questions = Question.query.filter(Question.question_id.in_(question_set.question_ids)).all()
+                    for question in questions:
+                        # Parse options from JSON array
+                        options = question.options or []
+                        questions_data.append({
+                            'id': question.question_id,
+                            'description': question.description,  # Use description field
+                            'options': options,  # Use options array
+                            'correct_option': question.correct_option,
+                            'marks_worth': question.marks_worth,
+                            'explanation': question.explanation,
+                            'image_url': question.image_url
+                        })
+
+                topics_data.append({
+                    'id': topic.topic_id,
+                    'name': topic.name,
+                    'difficulty_level': topic.difficulty_level,  # Use difficulty_level instead of description
+                    'questions': questions_data
+                })
+
+            subjects_data.append({
+                'id': subject.subject_id,
+                'name': subject.name,
+                'description': subject.description,
+                'topics': topics_data
+            })
+
+        return jsonify({'subjects': subjects_data})
+
+    except Exception as e:
+        app.logger.error(f"Error loading manage content: {str(e)}")
+        return jsonify({'error': f'Error loading content: {str(e)}'}), 500
+
+
+@app.route('/api/subject/<int:subject_id>', methods=['PUT', 'DELETE'])
+@login_required
+def manage_subject(subject_id):
+    """Edit or delete a subject"""
+    if current_user.role != 'teacher':
+        return jsonify({'error': 'Access denied'}), 403
+
+    subject = Subject.query.get_or_404(subject_id)
+
+    if request.method == 'PUT':
+        try:
+            data = request.get_json()
+            subject.name = data.get('name', subject.name)
+            subject.description = data.get('description', subject.description)
+            db.session.commit()
+            return jsonify({'success': True, 'message': 'Subject updated successfully'})
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error updating subject: {str(e)}")
+            return jsonify({'error': f'Error updating subject: {str(e)}'}), 500
+
+    elif request.method == 'DELETE':
+        try:
+            # Delete all associated topics and questions
+            topics = Topic.query.filter_by(subject_id=subject_id).all()
+            for topic in topics:
+                question_set = QuestionSet.query.filter_by(topic_id=topic.topic_id).first()
+                if question_set and question_set.question_ids:
+                    Question.query.filter(Question.question_id.in_(question_set.question_ids)).delete(synchronize_session=False)
+                    db.session.delete(question_set)
+                db.session.delete(topic)
+            
+            db.session.delete(subject)
+            db.session.commit()
+            return jsonify({'success': True, 'message': 'Subject deleted successfully'})
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error deleting subject: {str(e)}")
+            return jsonify({'error': f'Error deleting subject: {str(e)}'}), 500
+
+
+@app.route('/api/topic/<int:topic_id>', methods=['PUT', 'DELETE'])
+@login_required
+def manage_topic(topic_id):
+    """Edit or delete a topic"""
+    if current_user.role != 'teacher':
+        return jsonify({'error': 'Access denied'}), 403
+
+    topic = Topic.query.get_or_404(topic_id)
+
+    if request.method == 'PUT':
+        try:
+            data = request.get_json()
+            topic.name = data.get('name', topic.name)
+            topic.difficulty_level = data.get('difficulty_level', topic.difficulty_level)
+            db.session.commit()
+            return jsonify({'success': True, 'message': 'Topic updated successfully'})
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error updating topic: {str(e)}")
+            return jsonify({'error': f'Error updating topic: {str(e)}'}), 500
+
+    elif request.method == 'DELETE':
+        try:
+            # Delete all associated questions
+            question_set = QuestionSet.query.filter_by(topic_id=topic_id).first()
+            if question_set and question_set.question_ids:
+                Question.query.filter(Question.question_id.in_(question_set.question_ids)).delete(synchronize_session=False)
+                db.session.delete(question_set)
+            
+            db.session.delete(topic)
+            db.session.commit()
+            return jsonify({'success': True, 'message': 'Topic deleted successfully'})
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error deleting topic: {str(e)}")
+            return jsonify({'error': f'Error deleting topic: {str(e)}'}), 500
+
+
+@app.route('/api/question/<int:question_id>', methods=['PUT', 'DELETE'])
+@login_required
+def manage_question(question_id):
+    """Edit or delete a question"""
+    if current_user.role != 'teacher':
+        return jsonify({'error': 'Access denied'}), 403
+
+    question = Question.query.get_or_404(question_id)
+
+    if request.method == 'PUT':
+        try:
+            data = request.get_json()
+            question.description = data.get('description', question.description)
+            question.options = data.get('options', question.options)
+            question.correct_option = data.get('correct_option', question.correct_option)
+            question.marks_worth = data.get('marks_worth', question.marks_worth)
+            question.explanation = data.get('explanation', question.explanation)
+            question.image_url = data.get('image_url', question.image_url)
+            db.session.commit()
+            return jsonify({'success': True, 'message': 'Question updated successfully'})
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error updating question: {str(e)}")
+            return jsonify({'error': f'Error updating question: {str(e)}'}), 500
+
+    elif request.method == 'DELETE':
+        try:
+            # Remove question from question set
+            question_sets = QuestionSet.query.all()
+            for qs in question_sets:
+                if qs.question_ids and question_id in qs.question_ids:
+                    qs.question_ids.remove(question_id)
+                    qs.total_marks = len(qs.question_ids)
+            
+            db.session.delete(question)
+            db.session.commit()
+            return jsonify({'success': True, 'message': 'Question deleted successfully'})
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error deleting question: {str(e)}")
+            return jsonify({'error': f'Error deleting question: {str(e)}'}), 500
