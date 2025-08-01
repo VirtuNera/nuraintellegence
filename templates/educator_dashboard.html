@@ -393,6 +393,151 @@
     </div>
 </div>
 
+<!-- Edit Subject Modal -->
+<div class="modal fade" id="editSubjectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Subject</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editSubjectForm">
+                    <input type="hidden" id="editSubjectId">
+                    <div class="mb-3">
+                        <label class="form-label">Subject Name</label>
+                        <input type="text" class="form-control" id="editSubjectName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="editSubjectDescription" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitEditSubject()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Topic Modal -->
+<div class="modal fade" id="editTopicModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Topic</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editTopicForm">
+                    <input type="hidden" id="editTopicId">
+                    <div class="mb-3">
+                        <label class="form-label">Topic Name</label>
+                        <input type="text" class="form-control" id="editTopicName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Difficulty</label>
+                        <select class="form-select" id="editTopicDifficulty">
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitEditTopic()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Question Modal -->
+<div class="modal fade" id="editQuestionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editQuestionForm">
+                    <input type="hidden" id="editQuestionId">
+                    <div class="mb-3">
+                        <label class="form-label">Question Text</label>
+                        <textarea class="form-control" id="editQuestionText" rows="2" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Option A</label>
+                        <input type="text" class="form-control" id="editOptionA" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Option B</label>
+                        <input type="text" class="form-control" id="editOptionB" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Option C</label>
+                        <input type="text" class="form-control" id="editOptionC" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Option D</label>
+                        <input type="text" class="form-control" id="editOptionD" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Correct Answer</label>
+                        <select class="form-select" id="editCorrectAnswer" required>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Difficulty</label>
+                        <select class="form-select" id="editQuestionDifficulty">
+                            <option value="very-easy">Very Easy</option>
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                            <option value="very-hard">Very Hard</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Explanation</label>
+                        <textarea class="form-control" id="editQuestionExplanation" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitEditQuestion()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="deleteConfirmBody">
+                Are you sure you want to delete this item?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="deleteConfirmBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Learner Details Modal -->
 <div class="modal fade" id="studentDetailsModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -608,19 +753,28 @@ function submitEditSubject() {
     const id = document.getElementById('editSubjectId').value;
     const name = document.getElementById('editSubjectName').value;
     const description = document.getElementById('editSubjectDescription').value;
+    console.log('Editing subject:', { id, name, description });
     fetch(`/api/subject/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, description })
     })
-    .then(res => res.json())
+    .then(res => {
+        console.log('Subject edit response status:', res.status);
+        return res.json();
+    })
     .then(data => {
+        console.log('Subject edit response:', data);
         if (data.success) {
             bootstrap.Modal.getInstance(document.getElementById('editSubjectModal')).hide();
             loadManageContent();
         } else {
             alert('Error updating subject: ' + (data.message || 'Unknown error'));
         }
+    })
+    .catch(error => {
+        console.error('Subject edit error:', error);
+        alert('Error updating subject. Please try again.');
     });
 }
 function deleteSubject(subjectId) {
@@ -632,27 +786,36 @@ function editTopic(topicId) {
     if (!topic) return;
     document.getElementById('editTopicId').value = topic.id;
     document.getElementById('editTopicName').value = topic.name || '';
-    document.getElementById('editTopicDifficulty').value = topic.difficulty_level || 'medium';
+    document.getElementById('editTopicDifficulty').value = topic.difficulty || 'medium';
     const modal = new bootstrap.Modal(document.getElementById('editTopicModal'));
     modal.show();
 }
 function submitEditTopic() {
     const id = document.getElementById('editTopicId').value;
     const name = document.getElementById('editTopicName').value;
-    const difficulty_level = document.getElementById('editTopicDifficulty').value;
+    const difficulty = document.getElementById('editTopicDifficulty').value;
+    console.log('Editing topic:', { id, name, difficulty });
     fetch(`/api/topic/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, difficulty_level })
+        body: JSON.stringify({ name, difficulty })
     })
-    .then(res => res.json())
+    .then(res => {
+        console.log('Topic edit response status:', res.status);
+        return res.json();
+    })
     .then(data => {
+        console.log('Topic edit response:', data);
         if (data.success) {
             bootstrap.Modal.getInstance(document.getElementById('editTopicModal')).hide();
             loadManageContent();
         } else {
             alert('Error updating topic: ' + (data.message || 'Unknown error'));
         }
+    })
+    .catch(error => {
+        console.error('Topic edit error:', error);
+        alert('Error updating topic. Please try again.');
     });
 }
 function deleteTopic(topicId) {
@@ -663,41 +826,49 @@ function editQuestion(questionId) {
     const question = findQuestionById(questionId);
     if (!question) return;
     document.getElementById('editQuestionId').value = question.id;
-    document.getElementById('editQuestionText').value = question.description || '';
-    // Handle options array - assume options[0] = A, options[1] = B, etc.
-    const options = question.options || [];
-    document.getElementById('editOptionA').value = options[0] || '';
-    document.getElementById('editOptionB').value = options[1] || '';
-    document.getElementById('editOptionC').value = options[2] || '';
-    document.getElementById('editOptionD').value = options[3] || '';
-    document.getElementById('editCorrectAnswer').value = question.correct_option || 'A';
+    document.getElementById('editQuestionText').value = question.text || '';
+    document.getElementById('editOptionA').value = question.optionA || '';
+    document.getElementById('editOptionB').value = question.optionB || '';
+    document.getElementById('editOptionC').value = question.optionC || '';
+    document.getElementById('editOptionD').value = question.optionD || '';
+    document.getElementById('editCorrectAnswer').value = question.correctAnswer || 'A';
+    document.getElementById('editQuestionDifficulty').value = question.difficulty || 'medium';
     document.getElementById('editQuestionExplanation').value = question.explanation || '';
     const modal = new bootstrap.Modal(document.getElementById('editQuestionModal'));
     modal.show();
 }
 function submitEditQuestion() {
     const id = document.getElementById('editQuestionId').value;
-    const description = document.getElementById('editQuestionText').value;
+    const text = document.getElementById('editQuestionText').value;
     const optionA = document.getElementById('editOptionA').value;
     const optionB = document.getElementById('editOptionB').value;
     const optionC = document.getElementById('editOptionC').value;
     const optionD = document.getElementById('editOptionD').value;
-    const options = [optionA, optionB, optionC, optionD];
-    const correct_option = document.getElementById('editCorrectAnswer').value;
+    const correctAnswer = document.getElementById('editCorrectAnswer').value;
+    const difficulty = document.getElementById('editQuestionDifficulty').value;
     const explanation = document.getElementById('editQuestionExplanation').value;
+    console.log('Editing question:', { id, text, optionA, optionB, optionC, optionD, correctAnswer, difficulty, explanation });
     fetch(`/api/question/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ description, options, correct_option, explanation })
+        body: JSON.stringify({ text, optionA, optionB, optionC, optionD, correctAnswer, difficulty, explanation })
     })
-    .then(res => res.json())
+    .then(res => {
+        console.log('Question edit response status:', res.status);
+        return res.json();
+    })
     .then(data => {
+        console.log('Question edit response:', data);
         if (data.success) {
             bootstrap.Modal.getInstance(document.getElementById('editQuestionModal')).hide();
             loadManageContent();
         } else {
             alert('Error updating question: ' + (data.message || 'Unknown error'));
         }
+    })
+    .catch(error => {
+        console.error('Question edit error:', error);
+        alert('Error updating question. Please try again.');
     });
 }
 function deleteQuestion(questionId) {
@@ -713,15 +884,24 @@ function showDeleteConfirm(type, id) {
         if (type === 'subject') url = `/api/subject/${id}`;
         else if (type === 'topic') url = `/api/topic/${id}`;
         else if (type === 'question') url = `/api/question/${id}`;
+        console.log('Deleting:', { type, id, url });
         fetch(url, { method: 'DELETE' })
-            .then(res => res.json())
+            .then(res => {
+                console.log('Delete response status:', res.status);
+                return res.json();
+            })
             .then(data => {
+                console.log('Delete response:', data);
                 if (data.success) {
                     bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal')).hide();
                     loadManageContent();
                 } else {
                     alert('Error deleting: ' + (data.message || 'Unknown error'));
                 }
+            })
+            .catch(error => {
+                console.error('Delete error:', error);
+                alert('Error deleting item. Please try again.');
             });
     };
     const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
@@ -766,7 +946,7 @@ function renderManageContentNested(subjects) {
                                                         <ul class="list-group">
                                                             ${topic.questions.map(q => `
                                                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                    <span>${q.description}</span>
+                                                                    <span>${q.text}</span>
                                                                     <span>
                                                                         <button class="btn btn-sm btn-outline-primary me-1" onclick="editQuestion('${q.id}')"><i class="fas fa-edit"></i></button>
                                                                         <button class="btn btn-sm btn-outline-danger" onclick="deleteQuestion('${q.id}')"><i class="fas fa-trash"></i></button>

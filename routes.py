@@ -1500,18 +1500,20 @@ def manage_content():
                         options = question.options or []
                         questions_data.append({
                             'id': question.question_id,
-                            'description': question.description,  # Use description field
-                            'options': options,  # Use options array
-                            'correct_option': question.correct_option,
-                            'marks_worth': question.marks_worth,
-                            'explanation': question.explanation,
-                            'image_url': question.image_url
+                            'text': question.description,  # Frontend expects 'text'
+                            'optionA': options[0] if len(options) > 0 else '',
+                            'optionB': options[1] if len(options) > 1 else '',
+                            'optionC': options[2] if len(options) > 2 else '',
+                            'optionD': options[3] if len(options) > 3 else '',
+                            'correctAnswer': question.correct_option,
+                            'difficulty': question_set.difficulty_level,  # Get from question set
+                            'explanation': question.explanation or ''
                         })
 
                 topics_data.append({
                     'id': topic.topic_id,
                     'name': topic.name,
-                    'difficulty_level': topic.difficulty_level,  # Use difficulty_level instead of description
+                    'difficulty': topic.difficulty_level,  # Frontend expects 'difficulty'
                     'questions': questions_data
                 })
 
@@ -1529,14 +1531,16 @@ def manage_content():
         return jsonify({'error': f'Error loading content: {str(e)}'}), 500
 
 
-@app.route('/api/subject/<int:subject_id>', methods=['PUT', 'DELETE'])
+@app.route('/api/subject/<subject_id>', methods=['PUT', 'DELETE'])
 @login_required
 def manage_subject(subject_id):
     """Edit or delete a subject"""
     if current_user.role != 'teacher':
-        return jsonify({'error': 'Access denied'}), 403
+        return jsonify({'success': False, 'message': 'Access denied'}), 403
 
-    subject = Subject.query.get_or_404(subject_id)
+    subject = Subject.query.filter_by(subject_id=subject_id).first()
+    if not subject:
+        return jsonify({'success': False, 'message': 'Subject not found'}), 404
 
     if request.method == 'PUT':
         try:
@@ -1544,108 +1548,99 @@ def manage_subject(subject_id):
             subject.name = data.get('name', subject.name)
             subject.description = data.get('description', subject.description)
             db.session.commit()
-            return jsonify({'success': True, 'message': 'Subject updated successfully'})
+            return jsonify({'success': True})
         except Exception as e:
             db.session.rollback()
             app.logger.error(f"Error updating subject: {str(e)}")
-            return jsonify({'error': f'Error updating subject: {str(e)}'}), 500
+            return jsonify({'success': False, 'message': f'Error updating subject: {str(e)}'}), 500
 
     elif request.method == 'DELETE':
         try:
             # Delete all associated topics and questions
-            topics = Topic.query.filter_by(subject_id=subject_id).all()
+            topics = Topic.query.filter_by(subject_id=subject.subject_id).all()
             for topic in topics:
                 question_set = QuestionSet.query.filter_by(topic_id=topic.topic_id).first()
                 if question_set and question_set.question_ids:
                     Question.query.filter(Question.question_id.in_(question_set.question_ids)).delete(synchronize_session=False)
                     db.session.delete(question_set)
                 db.session.delete(topic)
-            
+
             db.session.delete(subject)
             db.session.commit()
-            return jsonify({'success': True, 'message': 'Subject deleted successfully'})
+            return jsonify({'success': True})
         except Exception as e:
             db.session.rollback()
             app.logger.error(f"Error deleting subject: {str(e)}")
-            return jsonify({'error': f'Error deleting subject: {str(e)}'}), 500
+            return jsonify({'success': False, 'message': f'Error deleting subject: {str(e)}'}), 500
 
 
-@app.route('/api/topic/<int:topic_id>', methods=['PUT', 'DELETE'])
+@app.route('/api/topic/<topic_id>', methods=['PUT', 'DELETE'])
 @login_required
 def manage_topic(topic_id):
     """Edit or delete a topic"""
     if current_user.role != 'teacher':
-        return jsonify({'error': 'Access denied'}), 403
+        return jsonify({'success': False, 'message': 'Access denied'}), 403
 
-    topic = Topic.query.get_or_404(topic_id)
+    topic = Topic.query.filter_by(topic_id=topic_id).first()
+    if not topic:
+        return jsonify({'success': False, 'message': 'Topic not found'}), 404
 
     if request.method == 'PUT':
         try:
             data = request.get_json()
             topic.name = data.get('name', topic.name)
-            topic.difficulty_level = data.get('difficulty_level', topic.difficulty_level)
+            topic.difficulty_level = data.get('difficulty', topic.difficulty_level)
             db.session.commit()
-            return jsonify({'success': True, 'message': 'Topic updated successfully'})
+            return jsonify({'success': True})
         except Exception as e:
             db.session.rollback()
             app.logger.error(f"Error updating topic: {str(e)}")
-            return jsonify({'error': f'Error updating topic: {str(e)}'}), 500
+            return jsonify({'success': False, 'message': f'Error updating topic: {str(e)}'}), 500
 
     elif request.method == 'DELETE':
         try:
-            # Delete all associated questions
-            question_set = QuestionSet.query.filter_by(topic_id=topic_id).first()
+            # Delete question set and questions
+            question_set = QuestionSet.query.filter_by(topic_id=topic.topic_id).first()
             if question_set and question_set.question_ids:
                 Question.query.filter(Question.question_id.in_(question_set.question_ids)).delete(synchronize_session=False)
                 db.session.delete(question_set)
-            
             db.session.delete(topic)
             db.session.commit()
-            return jsonify({'success': True, 'message': 'Topic deleted successfully'})
+            return jsonify({'success': True})
         except Exception as e:
             db.session.rollback()
             app.logger.error(f"Error deleting topic: {str(e)}")
-            return jsonify({'error': f'Error deleting topic: {str(e)}'}), 500
+            return jsonify({'success': False, 'message': f'Error deleting topic: {str(e)}'}), 500
 
 
-@app.route('/api/question/<int:question_id>', methods=['PUT', 'DELETE'])
+@app.route('/api/question/<question_id>', methods=['PUT', 'DELETE'])
 @login_required
-def manage_question(question_id):
-    """Edit or delete a question"""
+def api_question_update_delete(question_id):
     if current_user.role != 'teacher':
-        return jsonify({'error': 'Access denied'}), 403
-
-    question = Question.query.get_or_404(question_id)
-
+        return jsonify({'success': False, 'message': 'Access denied'}), 403
+    question = Question.query.filter_by(question_id=question_id).first()
+    if not question:
+        return jsonify({'success': False, 'message': 'Question not found'}), 404
     if request.method == 'PUT':
-        try:
-            data = request.get_json()
-            question.description = data.get('description', question.description)
-            question.options = data.get('options', question.options)
-            question.correct_option = data.get('correct_option', question.correct_option)
-            question.marks_worth = data.get('marks_worth', question.marks_worth)
-            question.explanation = data.get('explanation', question.explanation)
-            question.image_url = data.get('image_url', question.image_url)
-            db.session.commit()
-            return jsonify({'success': True, 'message': 'Question updated successfully'})
-        except Exception as e:
-            db.session.rollback()
-            app.logger.error(f"Error updating question: {str(e)}")
-            return jsonify({'error': f'Error updating question: {str(e)}'}), 500
-
+        data = request.get_json()
+        question.description = data.get('text', question.description)
+        question.options = [
+            data.get('optionA', ''),
+            data.get('optionB', ''),
+            data.get('optionC', ''),
+            data.get('optionD', '')
+        ]
+        question.correct_option = data.get('correctAnswer', question.correct_option)
+        question.explanation = data.get('explanation', question.explanation)
+        question.marks_worth = 1
+        # Optionally update difficulty by updating the parent question set
+        if 'difficulty' in data:
+            qs = QuestionSet.query.filter_by(question_set_id=question.set_id).first()
+            if qs:
+                qs.difficulty_level = data['difficulty']
+        db.session.commit()
+        return jsonify({'success': True})
     elif request.method == 'DELETE':
-        try:
-            # Remove question from question set
-            question_sets = QuestionSet.query.all()
-            for qs in question_sets:
-                if qs.question_ids and question_id in qs.question_ids:
-                    qs.question_ids.remove(question_id)
-                    qs.total_marks = len(qs.question_ids)
-            
-            db.session.delete(question)
-            db.session.commit()
-            return jsonify({'success': True, 'message': 'Question deleted successfully'})
-        except Exception as e:
-            db.session.rollback()
-            app.logger.error(f"Error deleting question: {str(e)}")
-            return jsonify({'error': f'Error deleting question: {str(e)}'}), 500
+        db.session.delete(question)
+        db.session.commit()
+        return jsonify({'success': True})
